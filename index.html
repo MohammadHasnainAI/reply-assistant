@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Humanized Reply Assistant | Mohammad Hasnain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fcfcfc;
+            --text-main: #1a1a1a;
+            --text-muted: #666;
+            --border-color: #e0e0e0;
+            --accent-color: #000;
+            --radius: 4px;
+            --transition: 0.2s ease;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+
+        header {
+            grid-column: 1 / -1;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .branding h1 { font-weight: 600; font-size: 1.5rem; letter-spacing: -0.5px; }
+        .developer-tag { font-size: 0.7rem; font-weight: 400; color: var(--text-muted); margin-top: -2px; }
+        .engine-tag { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; text-align: right; }
+
+        /* Form Styling */
+        .input-group { margin-bottom: 24px; }
+        label { display: block; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        textarea:focus { border-color: var(--accent-color); }
+
+        .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            background: white;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Buttons */
+        .button-stack { display: flex; gap: 10px; margin-top: 20px; }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        button:disabled { background: #ccc; cursor: not-allowed; }
+
+        .btn-primary { background: var(--accent-color); color: white; }
+        .btn-primary:hover { opacity: 0.8; }
+        .btn-secondary { background: #eee; color: var(--text-main); }
+        .btn-secondary:hover { background: #e0e0e0; }
+
+        /* Output Styling */
+        .output-area {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            position: relative;
+            min-height: 300px;
+            white-space: pre-wrap;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-header {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        #outputText { flex-grow: 1; font-size: 1.05rem; }
+
+        .loader {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            font-weight: 600;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .copy-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #000;
+            color: #fff;
+            padding: 12px 24px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+        .copy-toast.show { transform: translateX(-50%) translateY(0); }
+
+        .hint {
+            grid-column: 1 / -1;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        kbd { background: #eee; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+        #errorLog { color: #d32f2f; font-size: 0.75rem; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="branding">
+            <h1>REPLY ASSISTANT.AI</h1>
+            <div class="developer-tag">Developed by Mohammad Hasnain</div>
+        </div>
+        <div class="engine-tag">Powered by OpenRouter DeepSeek-R1</div>
+    </header>
+
+    <div class="input-panel">
+        <div class="input-group">
+            <label for="incomingMessage">Incoming Message</label>
+            <textarea id="incomingMessage" placeholder="Paste the message or email here..."></textarea>
+        </div>
+
+        <div class="selectors">
+            <div class="input-group">
+                <label>English Level</label>
+                <select id="level">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Tone</label>
+                <select id="tone">
+                    <option value="respectful">Respectful</option>
+                    <option value="friendly">Friendly</option>
+                    <option value="polite">Polite</option>
+                    <option value="professional">Professional</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Length</label>
+                <select id="length">
+                    <option value="short">Short</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="long">Long</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Format</label>
+                <select id="format">
+                    <option value="message">Message (Chat)</option>
+                    <option value="email">Email</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="button-stack">
+            <button class="btn-primary" id="genBtn" onclick="generateReply('normal')">Generate Reply</button>
+            <button class="btn-secondary" onclick="generateReply('regenerate')">Regenerate</button>
+        </div>
+    </div>
+
+    <div class="output-panel">
+        <label>Suggested Reply</label>
+        <div class="output-area">
+            <div class="loader" id="loader">R1 IS THINKING...</div>
+            <div class="output-header" id="outputMeta">No reply generated yet.</div>
+            <div id="outputText">Your humanized reply will appear here.</div>
+        </div>
+        <div class="button-stack">
+            <button class="btn-secondary" style="width: 100%;" onclick="copyReply()">Copy to Clipboard</button>
+        </div>
+        <div id="errorLog"></div>
+    </div>
+
+    <div class="hint">
+        Press <kbd>R</kbd> to refresh the assistant.
+    </div>
+</div>
+
+<div class="copy-toast" id="toast">Copied to clipboard!</div>
+
+<script>
+    // SECURE FRONTEND LOGIC (No API Key)
+    
+    async function generateReply(type) {
+        const input = document.getElementById('incomingMessage').value;
+        const loader = document.getElementById('loader');
+        const output = document.getElementById('outputText');
+        const meta = document.getElementById('outputMeta');
+        const errorLog = document.getElementById('errorLog');
+
+        if (!input) {
+            alert("Please paste an incoming message first.");
+            return;
+        }
+
+        loader.style.display = 'flex';
+        errorLog.style.display = 'none';
+
+        try {
+            const level = document.getElementById('level').value;
+            const tone = document.getElementById('tone').value;
+            const length = document.getElementById('length').value;
+            const format = document.getElementById('format').value;
+
+            // Sends data to your secure backend
+            const res = await fetch("/api/generate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    input,
+                    level,
+                    tone,
+                    length,
+                    format,
+                    type
+                })
+            });
+
+            const data = await res.json();
+            
+            if (!res.ok) throw new Error(data.error || "Request failed");
+
+            // Clean and Parse the response
+            let cleanText = data.reply;
+            cleanText = cleanText.replace(/```json|```/g, "").trim(); 
+            
+            let resultText = cleanText;
+            try {
+                 const parsed = JSON.parse(cleanText);
+                 resultText = parsed.reply;
+            } catch (e) {
+                 resultText = cleanText;
+            }
+
+            meta.innerText = `${format.toUpperCase()} • ${tone.toUpperCase()} • ${level.toUpperCase()}`;
+            output.innerText = resultText;
+
+        } catch (err) {
+            errorLog.innerText = `Error: ${err.message}`;
+            errorLog.style.display = 'block';
+            output.innerText = "Processing failed. Check connection.";
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    function copyReply() {
+        const text = document.getElementById('outputText').innerText;
+        if (!text || text.includes("appear here")) return;
+        
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        });
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key.toLowerCase() === 'r' && document.activeElement.tagName !== 'TEXTAREA') {
+            window.location.reload();
+        }
+    });
+</script>
+
+</body>
+</html>
