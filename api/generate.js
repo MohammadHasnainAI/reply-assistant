@@ -19,12 +19,13 @@ export default async function handler(req) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`, // Uses the hidden key
-        "HTTP-Referer": "https://your-site.vercel.app", 
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "HTTP-Referer": "https://pro-reply-assistant.vercel.app", // Updated to your new professional link
         "X-Title": "Humanized Reply Assistant"
       },
       body: JSON.stringify({
-        "model": "deepseek/deepseek-r1",
+        "model": "deepseek/deepseek-r1:free", // FIX 1: Added :free for $0 cost
+        "max_tokens": 1000,                    // FIX 2: Added limit to stop "credit" errors
         "messages": [
           { "role": "system", "content": "You are a humanized reply generator. Output only valid JSON." },
           { "role": "user", "content": prompt }
