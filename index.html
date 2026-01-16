@@ -163,7 +163,7 @@
         }
 
         kbd { background: #eee; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
-        #errorLog { color: #d32f2f; font-size: 0.75rem; margin-top: 10px; display: none; }
+        #errorLog { color: #d32f2f; font-size: 0.8rem; margin-top: 10px; display: none; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -174,7 +174,7 @@
             <h1>REPLY ASSISTANT.AI</h1>
             <div class="developer-tag">Developed by Mohammad Hasnain</div>
         </div>
-        <div class="engine-tag">Powered by OpenRouter DeepSeek-R1</div>
+        <div class="engine-tag">Powered by Meta Llama 3</div>
     </header>
 
     <div class="input-panel">
@@ -222,19 +222,19 @@
             <button class="btn-primary" id="genBtn" onclick="generateReply('normal')">Generate Reply</button>
             <button class="btn-secondary" onclick="generateReply('regenerate')">Regenerate</button>
         </div>
+        <div id="errorLog"></div>
     </div>
 
     <div class="output-panel">
         <label>Suggested Reply</label>
         <div class="output-area">
-            <div class="loader" id="loader">R1 IS THINKING...</div>
+            <div class="loader" id="loader">AI IS THINKING...</div>
             <div class="output-header" id="outputMeta">No reply generated yet.</div>
             <div id="outputText">Your humanized reply will appear here.</div>
         </div>
         <div class="button-stack">
             <button class="btn-secondary" style="width: 100%;" onclick="copyReply()">Copy to Clipboard</button>
         </div>
-        <div id="errorLog"></div>
     </div>
 
     <div class="hint">
@@ -245,8 +245,6 @@
 <div class="copy-toast" id="toast">Copied to clipboard!</div>
 
 <script>
-    // SECURE FRONTEND LOGIC (No API Key)
-    
     async function generateReply(type) {
         const input = document.getElementById('incomingMessage').value;
         const loader = document.getElementById('loader');
@@ -260,7 +258,7 @@
         }
 
         loader.style.display = 'flex';
-        errorLog.style.display = 'none';
+        errorLog.style.display = 'none'; // Hide previous errors
 
         try {
             const level = document.getElementById('level').value;
@@ -271,25 +269,20 @@
             // Sends data to your secure backend
             const res = await fetch("/api/generate", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    input,
-                    level,
-                    tone,
-                    length,
-                    format,
-                    type
-                })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ input, level, tone, length, format, type })
             });
 
             const data = await res.json();
             
-            if (!res.ok) throw new Error(data.error || "Request failed");
+            if (!res.ok) {
+                throw new Error(data.error || "Server connection failed");
+            }
 
             // Clean and Parse the response
             let cleanText = data.reply;
+            if (!cleanText) throw new Error("Received empty reply from AI");
+
             cleanText = cleanText.replace(/```json|```/g, "").trim(); 
             
             let resultText = cleanText;
@@ -304,9 +297,11 @@
             output.innerText = resultText;
 
         } catch (err) {
+            console.error(err);
+            // SHOW THE ACTUAL ERROR to help debugging
             errorLog.innerText = `Error: ${err.message}`;
             errorLog.style.display = 'block';
-            output.innerText = "Processing failed. Check connection.";
+            output.innerText = "Processing failed. See error details above.";
         } finally {
             loader.style.display = 'none';
         }
@@ -314,7 +309,7 @@
 
     function copyReply() {
         const text = document.getElementById('outputText').innerText;
-        if (!text || text.includes("appear here")) return;
+        if (!text || text.includes("appear here") || text.includes("Processing failed")) return;
         
         navigator.clipboard.writeText(text).then(() => {
             const toast = document.getElementById('toast');
