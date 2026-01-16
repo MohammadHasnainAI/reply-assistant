@@ -1,22 +1,15 @@
-// NOTE: I removed the "runtime: 'edge'" part to prevent timeouts.
-
 export default async function handler(req, res) {
-  // 1. Handle CORS (Allows your frontend to talk to this backend)
+  // 1. Enable CORS (Allows your website to talk to this backend)
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Handle the "Pre-flight" check
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
 
-  // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -24,26 +17,23 @@ export default async function handler(req, res) {
   try {
     const { input, level, tone, length, format, type } = req.body;
 
-    console.log("Processing request for:", input); // This helps debug in Vercel logs
-
+    // Optimized Prompt for the Llama 3.2 3B Model
     const prompt = `
     Act as a professional communication assistant.
-    Your task is to write a reply to this incoming message: "${input}"
+    Task: Write a reply to this message: "${input}"
 
-    STRICT GENERATION SETTINGS:
-    1. TONE: ${tone}
-    2. ENGLISH LEVEL: ${level} 
-    3. LENGTH: ${length}
-       - If "Short": 1-2 sentences.
-       - If "Long": 2-3 detailed paragraphs.
-    4. FORMAT: ${format}
-       - If "Email": You MUST start with "Subject: [Topic]", then add TWO NEW LINES (\n\n) before writing the email body.
-       - If "Message (Chat)": No subject line.
+    SETTINGS:
+    - Tone: ${tone}
+    - Level: ${level}
+    - Length: ${length} (Short=1 sentence, Long=3 paragraphs)
+    - Format: ${format}
 
-    ${type === 'regenerate' ? 'User wants a completely different version.' : ''}
-
-    Return ONLY JSON: 
-    {"sentiment": "One word vibe check", "reply": "The generated response"}
+    IMPORTANT RULES:
+    1. If Format is "Email", start with "Subject: [Topic]" followed by TWO blank lines.
+    2. OUTPUT ONLY RAW JSON. Do NOT write "Here is the JSON" or use markdown blocks.
+    
+    JSON FORMAT:
+    {"reply": "Your generated text here"}
     `;
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -55,32 +45,37 @@ export default async function handler(req, res) {
         "X-Title": "Humanized Reply Assistant"
       },
       body: JSON.stringify({
-        "model": "meta-llama/llama-3.3-70b-instruct:free", // Your chosen Free Model
+        // 👇 UPDATED: Using the exact model from your screenshot
+        "model": "meta-llama/llama-3.2-3b-instruct:free", 
         "max_tokens": 1000,
         "messages": [
-          { "role": "system", "content": "You are a helpful assistant that outputs only valid JSON." },
+          { "role": "system", "content": "You are a JSON-only API. Never output markdown." },
           { "role": "user", "content": prompt }
         ]
       })
     });
 
-    // 2. SAFETY CHECK: Check if OpenRouter failed BEFORE trying to read JSON
+    // 2. Debugging: Check if OpenRouter sent an error
     if (!response.ok) {
-        const errorText = await response.text(); // Read raw text in case it's not JSON
-        console.error("OpenRouter API Error:", errorText);
-        return res.status(response.status).json({ error: `AI Provider Error: ${response.statusText}` });
+        const errorText = await response.text();
+        console.error("OpenRouter Error:", errorText);
+        return res.status(500).json({ error: "AI Busy. Try again." });
     }
 
     const data = await response.json();
 
-    // 3. Extract content safely
+    // 3. Safety Check: Did we get a valid choice?
     if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new Error("Invalid response format from AI");
+        console.error("Invalid Data:", JSON.stringify(data));
+        return res.status(500).json({ error: "AI returned empty response. Try again." });
     }
 
-    const content = data.choices[0].message.content;
+    let content = data.choices[0].message.content;
 
-    // Send success response
+    // 4. CLEANER: Remove Markdown (```json ... ```) if the AI adds it
+    content = content.replace(/```json/g, "").replace(/```/g, "").trim();
+
+    // 5. Send it back
     return res.status(200).json({ reply: content });
 
   } catch (error) {
