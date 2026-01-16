@@ -7,13 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #fcfcfc;
-            --text-main: #1a1a1a;
-            --text-muted: #666;
-            --border-color: #e0e0e0;
-            --accent-color: #000;
-            --radius: 4px;
-            --transition: 0.2s ease;
+            --bg-color: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --accent-color: #2563eb; /* Modern DeepSeek Blue */
+            --radius: 8px;
+            --transition: 0.3s ease;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,40 +27,47 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 40px;
+            gap: 30px;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 850px) {
             .container { grid-template-columns: 1fr; }
         }
 
         header {
             grid-column: 1 / -1;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 10px;
+            padding-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
         }
 
-        .branding h1 { font-weight: 600; font-size: 1.5rem; letter-spacing: -0.5px; }
-        .developer-tag { font-size: 0.7rem; font-weight: 400; color: var(--text-muted); margin-top: -2px; }
-        .engine-tag { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; text-align: right; }
+        .branding h1 { font-weight: 600; font-size: 1.8rem; letter-spacing: -0.5px; }
+        .developer-tag { font-size: 0.8rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+        .engine-tag { font-size: 0.7rem; font-weight: 700; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1.5px; text-align: right; }
 
-        /* Form Styling */
-        .input-group { margin-bottom: 24px; }
-        label { display: block; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
+        .panel {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        label { display: block; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 10px; color: var(--text-muted); }
 
         textarea {
             width: 100%;
-            height: 180px;
+            height: 200px;
             padding: 15px;
             border: 1px solid var(--border-color);
+            border-radius: var(--radius);
             font-family: inherit;
             font-size: 1rem;
             resize: none;
@@ -68,61 +75,52 @@
             transition: var(--transition);
         }
 
-        textarea:focus { border-color: var(--accent-color); }
+        textarea:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 
-        .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
 
         select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid var(--border-color);
+            border-radius: var(--radius);
             background: white;
             font-family: inherit;
             outline: none;
             cursor: pointer;
         }
 
-        /* Buttons */
-        .button-stack { display: flex; gap: 10px; margin-top: 20px; }
+        .button-stack { display: flex; gap: 12px; margin-top: 25px; }
 
         button {
-            padding: 12px 24px;
+            flex: 1;
+            padding: 14px;
             border: none;
+            border-radius: var(--radius);
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             transition: var(--transition);
         }
 
-        button:disabled { background: #ccc; cursor: not-allowed; }
-
         .btn-primary { background: var(--accent-color); color: white; }
-        .btn-primary:hover { opacity: 0.8; }
-        .btn-secondary { background: #eee; color: var(--text-main); }
-        .btn-secondary:hover { background: #e0e0e0; }
+        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-secondary { background: #f1f5f9; color: var(--text-main); }
+        .btn-secondary:hover { background: #e2e8f0; }
 
-        /* Output Styling */
         .output-area {
-            background: #fff;
-            border: 1px solid var(--border-color);
-            padding: 30px;
+            background: #fdfdfd;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius);
+            padding: 25px;
             position: relative;
-            min-height: 300px;
+            min-height: 350px;
             white-space: pre-wrap;
             display: flex;
             flex-direction: column;
         }
 
-        .output-header {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 5px;
-        }
-
-        #outputText { flex-grow: 1; font-size: 1.05rem; }
+        #outputText { flex-grow: 1; font-size: 1.05rem; color: #334155; }
 
         .loader {
             position: absolute;
@@ -133,37 +131,24 @@
             justify-content: center;
             z-index: 10;
             font-weight: 600;
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            color: var(--accent-color);
         }
 
+        #errorLog { color: #dc2626; font-size: 0.8rem; margin-top: 15px; display: none; padding: 10px; background: #fee2e2; border-radius: 4px; }
+        
         .copy-toast {
             position: fixed;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: #000;
+            background: #0f172a;
             color: #fff;
             padding: 12px 24px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1000;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .copy-toast.show { transform: translateX(-50%) translateY(0); }
-
-        .hint {
-            grid-column: 1 / -1;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 40px;
-            text-align: center;
-        }
-
-        kbd { background: #eee; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
-        #errorLog { color: #d32f2f; font-size: 0.8rem; margin-top: 10px; display: none; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -174,17 +159,15 @@
             <h1>REPLY ASSISTANT.AI</h1>
             <div class="developer-tag">Developed by Mohammad Hasnain</div>
         </div>
-        <div class="engine-tag">Powered by Meta Llama 3</div>
+        <div class="engine-tag">Powered by DeepSeek-V3.2</div>
     </header>
 
-    <div class="input-panel">
-        <div class="input-group">
-            <label for="incomingMessage">Incoming Message</label>
-            <textarea id="incomingMessage" placeholder="Paste the message or email here..."></textarea>
-        </div>
+    <div class="panel">
+        <label for="incomingMessage">Incoming Message</label>
+        <textarea id="incomingMessage" placeholder="Paste the text here..."></textarea>
 
         <div class="selectors">
-            <div class="input-group">
+            <div>
                 <label>English Level</label>
                 <select id="level">
                     <option value="easy">Easy</option>
@@ -192,7 +175,7 @@
                     <option value="hard">Hard</option>
                 </select>
             </div>
-            <div class="input-group">
+            <div>
                 <label>Tone</label>
                 <select id="tone">
                     <option value="respectful">Respectful</option>
@@ -201,7 +184,7 @@
                     <option value="professional">Professional</option>
                 </select>
             </div>
-            <div class="input-group">
+            <div>
                 <label>Length</label>
                 <select id="length">
                     <option value="short">Short</option>
@@ -209,7 +192,7 @@
                     <option value="long">Long</option>
                 </select>
             </div>
-            <div class="input-group">
+            <div>
                 <label>Format</label>
                 <select id="format">
                     <option value="message">Message (Chat)</option>
@@ -219,26 +202,21 @@
         </div>
 
         <div class="button-stack">
-            <button class="btn-primary" id="genBtn" onclick="generateReply('normal')">Generate Reply</button>
+            <button class="btn-primary" onclick="generateReply('normal')">Generate Reply</button>
             <button class="btn-secondary" onclick="generateReply('regenerate')">Regenerate</button>
         </div>
         <div id="errorLog"></div>
     </div>
 
-    <div class="output-panel">
+    <div class="panel">
         <label>Suggested Reply</label>
         <div class="output-area">
-            <div class="loader" id="loader">AI IS THINKING...</div>
-            <div class="output-header" id="outputMeta">No reply generated yet.</div>
+            <div class="loader" id="loader">DeepSeek is thinking...</div>
             <div id="outputText">Your humanized reply will appear here.</div>
         </div>
         <div class="button-stack">
-            <button class="btn-secondary" style="width: 100%;" onclick="copyReply()">Copy to Clipboard</button>
+            <button class="btn-secondary" onclick="copyReply()" style="width: 100%;">Copy to Clipboard</button>
         </div>
-    </div>
-
-    <div class="hint">
-        Press <kbd>R</kbd> to refresh the assistant.
     </div>
 </div>
 
@@ -249,16 +227,15 @@
         const input = document.getElementById('incomingMessage').value;
         const loader = document.getElementById('loader');
         const output = document.getElementById('outputText');
-        const meta = document.getElementById('outputMeta');
         const errorLog = document.getElementById('errorLog');
 
         if (!input) {
-            alert("Please paste an incoming message first.");
+            alert("Please paste a message first.");
             return;
         }
 
         loader.style.display = 'flex';
-        errorLog.style.display = 'none'; // Hide previous errors
+        errorLog.style.display = 'none';
 
         try {
             const level = document.getElementById('level').value;
@@ -266,7 +243,6 @@
             const length = document.getElementById('length').value;
             const format = document.getElementById('format').value;
 
-            // Sends data to your secure backend
             const res = await fetch("/api/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -274,34 +250,14 @@
             });
 
             const data = await res.json();
-            
-            if (!res.ok) {
-                throw new Error(data.error || "Server connection failed");
-            }
+            if (!res.ok) throw new Error(data.error || "Connection error");
 
-            // Clean and Parse the response
-            let cleanText = data.reply;
-            if (!cleanText) throw new Error("Received empty reply from AI");
-
-            cleanText = cleanText.replace(/```json|```/g, "").trim(); 
-            
-            let resultText = cleanText;
-            try {
-                 const parsed = JSON.parse(cleanText);
-                 resultText = parsed.reply;
-            } catch (e) {
-                 resultText = cleanText;
-            }
-
-            meta.innerText = `${format.toUpperCase()} • ${tone.toUpperCase()} • ${level.toUpperCase()}`;
-            output.innerText = resultText;
+            output.innerText = data.reply;
 
         } catch (err) {
-            console.error(err);
-            // SHOW THE ACTUAL ERROR to help debugging
             errorLog.innerText = `Error: ${err.message}`;
             errorLog.style.display = 'block';
-            output.innerText = "Processing failed. See error details above.";
+            output.innerText = "Check your DeepSeek API Key and balance.";
         } finally {
             loader.style.display = 'none';
         }
@@ -309,8 +265,7 @@
 
     function copyReply() {
         const text = document.getElementById('outputText').innerText;
-        if (!text || text.includes("appear here") || text.includes("Processing failed")) return;
-        
+        if (!text || text.includes("appear here")) return;
         navigator.clipboard.writeText(text).then(() => {
             const toast = document.getElementById('toast');
             toast.classList.add('show');
