@@ -31,9 +31,20 @@ export default async function handler(req) {
     - Length: ${length}
     - Format: ${format}
 
-    IMPORTANT:
-    1. If Format is "Email", start with "Subject: [Topic]" followed by TWO blank lines.
-    2. OUTPUT ONLY RAW JSON. No markdown.
+    IMPORTANT RULES FOR FORMATTING:
+    1. If Format is "Email", you MUST follow this EXACT structure:
+       Subject: [Write a clear subject line here]
+       
+       Dear [Name],
+       
+       [Write the email body here]
+       
+       Best regards,
+       [Your Name]
+
+    2. If Format is "Message (Chat)", keep it short and do NOT use a subject line or "Dear...".
+    
+    3. OUTPUT ONLY RAW JSON. No markdown.
     
     JSON FORMAT:
     {"reply": "Your text here"}
@@ -44,22 +55,22 @@ export default async function handler(req) {
       { 
         name: "Llama 3.2 3B",
         id: "meta-llama/llama-3.2-3b-instruct:free", 
-        key: process.env.OPENROUTER_API_KEY // ✅ Uses your EXISTING key
+        key: process.env.OPENROUTER_API_KEY // Primary Key
       },
       { 
         name: "Mistral Small 24B",
         id: "mistralai/mistral-small-24b-instruct-2501:free", 
-        key: process.env.KEY_MISTRAL // ✅ Uses the new Mistral key
+        key: process.env.KEY_MISTRAL // Mistral Key
       },
       { 
         name: "Qwen 2.5 VL",
         id: "qwen/qwen-2.5-vl-7b-instruct:free", 
-        key: process.env.KEY_QWEN // ✅ Uses the new Qwen key
+        key: process.env.KEY_QWEN // Qwen Key
       },
       { 
         name: "NVIDIA Nemotron",
         id: "nvidia/nemotron-nano-9b-v2:free", 
-        key: process.env.KEY_NVIDIA // ✅ Uses the new NVIDIA key
+        key: process.env.KEY_NVIDIA // NVIDIA Key
       }
     ];
 
@@ -67,7 +78,6 @@ export default async function handler(req) {
 
     // Loop through the team until one works
     for (const agent of backupTeam) {
-        // Skip if key is missing (prevents crashes if you forgot one)
         if (!agent.key) {
             console.warn(`Skipping ${agent.name} (Key missing)`);
             continue;
@@ -80,7 +90,7 @@ export default async function handler(req) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${agent.key}`, // Uses the specific key for this agent
+                    "Authorization": `Bearer ${agent.key}`,
                     "HTTP-Referer": "https://pro-reply-assistant.vercel.app",
                     "X-Title": "Humanized Reply Assistant"
                 },
@@ -108,13 +118,11 @@ export default async function handler(req) {
             let content = data.choices[0].message.content;
             content = content.replace(/```json/g, "").replace(/```/g, "").trim();
             
-            // Success! Return the reply immediately.
             return new Response(JSON.stringify({ reply: content }), { status: 200, headers });
 
         } catch (error) {
             console.warn(`${agent.name} failed:`, error.message);
             lastError = error.message;
-            // Continue to the next agent...
         }
     }
 
