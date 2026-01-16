@@ -10,24 +10,29 @@ export default async function handler(req) {
   try {
     const { input, level, tone, length, format, type } = await req.json();
 
-    // 👇 IMPROVED PROMPT: Forces Subject Line for Emails & Better Context
+    // 👇 FIXED PROMPT: Now strictly enforces Length, Tone, and Format
     const prompt = `
-    You are an expert communication assistant. 
-    Task: Write a reply to the following incoming message: "${input}".
-    
-    Settings:
-    - Tone: ${tone}
-    - English Level: ${level}
-    - Format: ${format}
-    - Goal: ${type === 'regenerate' ? 'Provide a completely different option.' : 'Write the best possible response.'}
+    Act as a professional communication assistant.
+    Your task is to write a reply to this incoming message: "${input}"
 
-    IMPORTANT RULES:
-    1. If Format is "Email", you MUST include a "Subject:" line at the top.
-    2. If Format is "Message (Chat)", keep it short and casual.
-    3. Do not assume user context unless given (use placeholders like [Your Name] if needed).
-    
-    Return ONLY JSON in this format: 
-    {"sentiment": "Brief summary of input vibe", "reply": "The actual response text"}
+    STRICT GENERATION SETTINGS:
+    1. TONE: ${tone} (Make it sound exactly like this)
+    2. ENGLISH LEVEL: ${level} 
+       - If "Easy": Use simple words, short sentences (A1/A2 level).
+       - If "Medium": Standard professional English.
+       - If "Hard": Use sophisticated vocabulary and complex grammar.
+    3. LENGTH: ${length}  <-- FIXED: AI will now obey this!
+       - If "Short": 1-2 sentences max.
+       - If "Normal": 3-5 sentences.
+       - If "Long": 2-3 detailed paragraphs.
+    4. FORMAT: ${format}
+       - If "Email": You MUST include a "Subject:" line at the top.
+       - If "Message (Chat)": No subject line, keeps it casual.
+
+    ${type === 'regenerate' ? 'User wants a completely different version.' : ''}
+
+    Return ONLY JSON: 
+    {"sentiment": "One word vibe check", "reply": "The generated response"}
     `;
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -39,7 +44,7 @@ export default async function handler(req) {
         "X-Title": "Humanized Reply Assistant"
       },
       body: JSON.stringify({
-        "model": "meta-llama/llama-3.3-70b-instruct:free", // Best Free Model
+        "model": "meta-llama/llama-3.3-70b-instruct:free", // The Smartest Free Model
         "max_tokens": 1000,
         "messages": [
           { "role": "system", "content": "You are a helpful assistant that outputs only valid JSON." },
@@ -54,7 +59,6 @@ export default async function handler(req) {
       return new Response(JSON.stringify({ error: data.error?.message || "AI Error" }), { status: 500 });
     }
 
-    // Extract the content
     const content = data.choices[0].message.content;
 
     return new Response(JSON.stringify({ reply: content }), {
