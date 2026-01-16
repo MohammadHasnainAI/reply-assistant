@@ -21,33 +21,43 @@ export default async function handler(req) {
   try {
     const { input, level, tone, length, format } = await req.json();
 
+    // 👇 NEW: STRICT TEMPLATE PROMPT
     const prompt = `
-    Act as a professional communication assistant.
-    Task: Write a reply to this message: "${input}"
-
+    Role: Professional Communication Assistant.
+    Task: Write a reply to: "${input}"
+    
     SETTINGS:
     - Tone: ${tone}
     - Level: ${level}
-    - Length: ${length}
     - Format: ${format}
+    - Length: ${length}
 
-    IMPORTANT RULES FOR FORMATTING:
-    1. If Format is "Email", you MUST follow this EXACT structure:
-       Subject: [Write a clear subject line here]
-       
-       Dear [Name],
-       
-       [Write the email body here]
-       
-       Best regards,
-       [Your Name]
+    🚨 CRITICAL RULES FOR "${format.toUpperCase()}" FORMAT 🚨:
 
-    2. If Format is "Message (Chat)", keep it short and do NOT use a subject line or "Dear...".
+    ${format === 'email' ? `
+    YOU MUST FOLLOW THIS EXACT EMAIL TEMPLATE:
+    ------------------------------------------
+    Subject: [Create a relevant subject line]
     
-    3. OUTPUT ONLY RAW JSON. No markdown.
+    Dear [Name],
     
-    JSON FORMAT:
-    {"reply": "Your text here"}
+    [Write a full, polite paragraph here. Even if the input is short, expand on it to make it professional.]
+    
+    Best regards,
+    [Your Name]
+    ------------------------------------------
+    * Do NOT output a single line.
+    * Do NOT forget the Subject line.
+    * You MUST include "Dear..." and "Best regards...".
+    ` : `
+    * Just write a direct, casual chat message.
+    * NO Subject line.
+    * NO "Dear" or "Best regards".
+    `}
+
+    OUTPUT FORMAT:
+    Return ONLY raw JSON (no markdown):
+    {"reply": "Your full generated text here"}
     `;
 
     // 👇 YOUR BACKUP TEAM (Mapped to your specific Vercel Keys)
@@ -98,7 +108,7 @@ export default async function handler(req) {
                     "model": agent.id,
                     "max_tokens": 1000,
                     "messages": [
-                        { "role": "system", "content": "You are a JSON-only API." },
+                        { "role": "system", "content": "You are a JSON-only API. You strictly follow formatting rules." },
                         { "role": "user", "content": prompt }
                     ]
                 })
