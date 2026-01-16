@@ -10,7 +10,7 @@ export default async function handler(req) {
   try {
     const { input, level, tone, length, format, type } = await req.json();
 
-    // 👇 FIXED PROMPT: Now strictly enforces Length, Tone, and Format
+    // 👇 FIXED: Added explicit instruction for "Email" line breaks
     const prompt = `
     Act as a professional communication assistant.
     Your task is to write a reply to this incoming message: "${input}"
@@ -18,16 +18,14 @@ export default async function handler(req) {
     STRICT GENERATION SETTINGS:
     1. TONE: ${tone} (Make it sound exactly like this)
     2. ENGLISH LEVEL: ${level} 
-       - If "Easy": Use simple words, short sentences (A1/A2 level).
-       - If "Medium": Standard professional English.
-       - If "Hard": Use sophisticated vocabulary and complex grammar.
-    3. LENGTH: ${length}  <-- FIXED: AI will now obey this!
-       - If "Short": 1-2 sentences max.
-       - If "Normal": 3-5 sentences.
+       - If "Easy": Use simple words, short sentences.
+       - If "Hard": Use sophisticated vocabulary.
+    3. LENGTH: ${length}
+       - If "Short": 1-2 sentences.
        - If "Long": 2-3 detailed paragraphs.
     4. FORMAT: ${format}
-       - If "Email": You MUST include a "Subject:" line at the top.
-       - If "Message (Chat)": No subject line, keeps it casual.
+       - If "Email": You MUST start with "Subject: [Topic]", then add TWO NEW LINES (\n\n) before writing the email body.
+       - If "Message (Chat)": Do not use a subject line.
 
     ${type === 'regenerate' ? 'User wants a completely different version.' : ''}
 
@@ -44,7 +42,7 @@ export default async function handler(req) {
         "X-Title": "Humanized Reply Assistant"
       },
       body: JSON.stringify({
-        "model": "meta-llama/llama-3.3-70b-instruct:free", // The Smartest Free Model
+        "model": "meta-llama/llama-3.3-70b-instruct:free", // Keeping the powerful free model
         "max_tokens": 1000,
         "messages": [
           { "role": "system", "content": "You are a helpful assistant that outputs only valid JSON." },
