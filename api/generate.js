@@ -10,10 +10,25 @@ export default async function handler(req) {
   try {
     const { input, level, tone, length, format, type } = await req.json();
 
-    const prompt = `Act as a humanized reply expert. Write a ${tone} reply to this message: "${input}". 
-    Use ${level} level English. Format it as an ${format}. 
-    ${type === 'regenerate' ? 'Provide a unique phrasing.' : ''} 
-    Return ONLY JSON: {"sentiment": "VIBE", "reply": "TEXT"}`;
+    // 👇 IMPROVED PROMPT: Forces Subject Line for Emails & Better Context
+    const prompt = `
+    You are an expert communication assistant. 
+    Task: Write a reply to the following incoming message: "${input}".
+    
+    Settings:
+    - Tone: ${tone}
+    - English Level: ${level}
+    - Format: ${format}
+    - Goal: ${type === 'regenerate' ? 'Provide a completely different option.' : 'Write the best possible response.'}
+
+    IMPORTANT RULES:
+    1. If Format is "Email", you MUST include a "Subject:" line at the top.
+    2. If Format is "Message (Chat)", keep it short and casual.
+    3. Do not assume user context unless given (use placeholders like [Your Name] if needed).
+    
+    Return ONLY JSON in this format: 
+    {"sentiment": "Brief summary of input vibe", "reply": "The actual response text"}
+    `;
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -24,10 +39,10 @@ export default async function handler(req) {
         "X-Title": "Humanized Reply Assistant"
       },
       body: JSON.stringify({
-        "model": "meta-llama/llama-3.3-70b-instruct:free", // The correct Free Llama 3 model
+        "model": "meta-llama/llama-3.3-70b-instruct:free", // Best Free Model
         "max_tokens": 1000,
         "messages": [
-          { "role": "system", "content": "You are a humanized reply generator. Output only valid JSON." },
+          { "role": "system", "content": "You are a helpful assistant that outputs only valid JSON." },
           { "role": "user", "content": prompt }
         ]
       })
@@ -39,6 +54,7 @@ export default async function handler(req) {
       return new Response(JSON.stringify({ error: data.error?.message || "AI Error" }), { status: 500 });
     }
 
+    // Extract the content
     const content = data.choices[0].message.content;
 
     return new Response(JSON.stringify({ reply: content }), {
