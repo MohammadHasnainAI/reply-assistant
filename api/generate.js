@@ -1,31 +1,44 @@
-export const config = {
-  runtime: 'edge',
-};
+// NOTE: I removed the "runtime: 'edge'" part to prevent timeouts.
 
-export default async function handler(req) {
+export default async function handler(req, res) {
+  // 1. Handle CORS (Allows your frontend to talk to this backend)
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  // Handle the "Pre-flight" check
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  // Only allow POST requests
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { input, level, tone, length, format, type } = await req.json();
+    const { input, level, tone, length, format, type } = req.body;
 
-    // 👇 FIXED: Added explicit instruction for "Email" line breaks
+    console.log("Processing request for:", input); // This helps debug in Vercel logs
+
     const prompt = `
     Act as a professional communication assistant.
     Your task is to write a reply to this incoming message: "${input}"
 
     STRICT GENERATION SETTINGS:
-    1. TONE: ${tone} (Make it sound exactly like this)
+    1. TONE: ${tone}
     2. ENGLISH LEVEL: ${level} 
-       - If "Easy": Use simple words, short sentences.
-       - If "Hard": Use sophisticated vocabulary.
     3. LENGTH: ${length}
        - If "Short": 1-2 sentences.
        - If "Long": 2-3 detailed paragraphs.
     4. FORMAT: ${format}
        - If "Email": You MUST start with "Subject: [Topic]", then add TWO NEW LINES (\n\n) before writing the email body.
-       - If "Message (Chat)": Do not use a subject line.
+       - If "Message (Chat)": No subject line.
 
     ${type === 'regenerate' ? 'User wants a completely different version.' : ''}
 
@@ -42,7 +55,7 @@ export default async function handler(req) {
         "X-Title": "Humanized Reply Assistant"
       },
       body: JSON.stringify({
-        "model": "meta-llama/llama-3.3-70b-instruct:free", // Keeping the powerful free model
+        "model": "meta-llama/llama-3.3-70b-instruct:free", // Your chosen Free Model
         "max_tokens": 1000,
         "messages": [
           { "role": "system", "content": "You are a helpful assistant that outputs only valid JSON." },
@@ -51,19 +64,27 @@ export default async function handler(req) {
       })
     });
 
+    // 2. SAFETY CHECK: Check if OpenRouter failed BEFORE trying to read JSON
+    if (!response.ok) {
+        const errorText = await response.text(); // Read raw text in case it's not JSON
+        console.error("OpenRouter API Error:", errorText);
+        return res.status(response.status).json({ error: `AI Provider Error: ${response.statusText}` });
+    }
+
     const data = await response.json();
 
-    if (!response.ok) {
-      return new Response(JSON.stringify({ error: data.error?.message || "AI Error" }), { status: 500 });
+    // 3. Extract content safely
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error("Invalid response format from AI");
     }
 
     const content = data.choices[0].message.content;
 
-    return new Response(JSON.stringify({ reply: content }), {
-      headers: { 'Content-Type': 'application/json' }
-    });
+    // Send success response
+    return res.status(200).json({ reply: content });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    console.error("Server Error:", error);
+    return res.status(500).json({ error: error.message });
   }
 }
