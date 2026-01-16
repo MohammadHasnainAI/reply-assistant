@@ -21,7 +21,7 @@ export default async function handler(req) {
   try {
     const { input, level, tone, length, format } = await req.json();
 
-    // 👇 NEW: STRICT TEMPLATE PROMPT
+    // 👇 STRICT EMAIL FORMATTING PROMPT
     const prompt = `
     Role: Professional Communication Assistant.
     Task: Write a reply to: "${input}"
@@ -60,52 +60,28 @@ export default async function handler(req) {
     {"reply": "Your full generated text here"}
     `;
 
-    // 👇 YOUR BACKUP TEAM (Mapped to your specific Vercel Keys)
-    const backupTeam = [
-      { 
-        name: "Llama 3.2 3B",
-        id: "meta-llama/llama-3.2-3b-instruct:free", 
-        key: process.env.OPENROUTER_API_KEY // Primary Key
-      },
-      { 
-        name: "Mistral Small 24B",
-        id: "mistralai/mistral-small-24b-instruct-2501:free", 
-        key: process.env.KEY_MISTRAL // Mistral Key
-      },
-      { 
-        name: "Qwen 2.5 VL",
-        id: "qwen/qwen-2.5-vl-7b-instruct:free", 
-        key: process.env.KEY_QWEN // Qwen Key
-      },
-      { 
-        name: "NVIDIA Nemotron",
-        id: "nvidia/nemotron-nano-9b-v2:free", 
-        key: process.env.KEY_NVIDIA // NVIDIA Key
-      }
+    // 👇 GROQ MODELS (Matches your screenshot)
+    const models = [
+      "llama-3.3-70b-versatile",    // 1. Smartest (Free)
+      "llama-3.1-8b-instant",       // 2. Fastest (Free)
+      "mixtral-8x7b-32768"          // 3. Backup (Free)
     ];
 
     let lastError = "";
 
-    // Loop through the team until one works
-    for (const agent of backupTeam) {
-        if (!agent.key) {
-            console.warn(`Skipping ${agent.name} (Key missing)`);
-            continue;
-        }
-
+    // Loop to try models until one works
+    for (const model of models) {
         try {
-            console.log(`Trying ${agent.name}...`); 
+            console.log(`Trying Groq model: ${model}...`); 
             
-            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${agent.key}`,
-                    "HTTP-Referer": "https://pro-reply-assistant.vercel.app",
-                    "X-Title": "Humanized Reply Assistant"
+                    "Authorization": `Bearer ${process.env.GROQ_API_KEY}` // Uses your NEW Groq Key
                 },
                 body: JSON.stringify({
-                    "model": agent.id,
+                    "model": model,
                     "max_tokens": 1000,
                     "messages": [
                         { "role": "system", "content": "You are a JSON-only API. You strictly follow formatting rules." },
@@ -131,12 +107,12 @@ export default async function handler(req) {
             return new Response(JSON.stringify({ reply: content }), { status: 200, headers });
 
         } catch (error) {
-            console.warn(`${agent.name} failed:`, error.message);
+            console.warn(`Groq ${model} failed:`, error.message);
             lastError = error.message;
         }
     }
 
-    return new Response(JSON.stringify({ error: `All models busy. Last error: ${lastError}` }), { status: 503, headers });
+    return new Response(JSON.stringify({ error: `Groq Busy. Last error: ${lastError}` }), { status: 503, headers });
 
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
