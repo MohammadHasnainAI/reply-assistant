@@ -24,211 +24,145 @@
             color: var(--text-main);
             line-height: 1.6;
             padding: 40px 20px;
-            overflow-x: hidden; /* Prevent horizontal scroll when sidebar is open */
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            transition: transform 0.3s ease; /* Push effect for sidebar */
-        }
-
-        @media (max-width: 768px) {
-            .container { grid-template-columns: 1fr; }
-        }
-
-        header {
-            grid-column: 1 / -1;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .branding h1 { font-weight: 600; font-size: 1.5rem; letter-spacing: -0.5px; }
-        .developer-tag { font-size: 0.7rem; font-weight: 400; color: var(--text-muted); margin-top: -2px; }
-        .engine-tag { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; text-align: right; }
-
-        .input-group { margin-bottom: 24px; }
-        label { display: block; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
-
-        textarea {
-            width: 100%;
-            height: 180px;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            font-family: inherit;
-            font-size: 1rem;
-            resize: none;
-            outline: none;
-            transition: var(--transition);
-        }
-
-        textarea:focus { border-color: var(--accent-color); }
-        .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            background: white;
-            font-family: inherit;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .button-stack { display: flex; gap: 10px; margin-top: 20px; }
-
-        button {
-            padding: 12px 24px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        .btn-primary { background: var(--accent-color); color: white; }
-        .btn-primary:hover { opacity: 0.8; }
-        .btn-secondary { background: #eee; color: var(--text-main); }
-        .btn-secondary:hover { background: #e0e0e0; }
-
-        .output-area {
-            background: #fff;
-            border: 1px solid var(--border-color);
-            padding: 30px;
-            position: relative;
-            min-height: 300px;
-            white-space: pre-wrap;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .output-header {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 5px;
-        }
-
-        #outputText { flex-grow: 1; font-size: 1.05rem; }
-
-        .loader {
-            position: absolute;
-            inset: 0;
-            background: rgba(255,255,255,0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            font-weight: 600;
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .copy-toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #000;
-            color: #fff;
-            padding: 12px 24px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1000;
-        }
-        .copy-toast.show { transform: translateX(-50%) translateY(0); }
-
-        .hint {
-            grid-column: 1 / -1;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 40px;
-            text-align: center;
-        }
-
-        kbd { background: #eee; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
-        #errorLog { color: #d32f2f; font-size: 0.75rem; margin-top: 10px; display: none; word-break: break-all; }
-
-        /* --- SECRET SIDEBAR CSS --- */
+        /* --- PROFESSIONAL SIDEBAR CSS --- */
         #secretSidebar {
             position: fixed;
             top: 0;
-            right: -320px;
-            width: 320px;
+            right: -350px; /* Hidden by default */
+            width: 350px;
             height: 100vh;
-            background: #111;
-            color: #00ff41; /* Hacker Green */
-            font-family: 'Courier New', Courier, monospace;
-            padding: 30px;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-            transition: right 0.4s ease;
+            background: rgba(20, 20, 20, 0.98); /* Deep Matte Black */
+            backdrop-filter: blur(12px); /* Glass Effect */
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            padding: 40px 30px;
+            box-shadow: -10px 0 40px rgba(0,0,0,0.4);
+            transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             z-index: 9999;
-            overflow-y: auto;
+            border-left: 1px solid #333;
         }
         #secretSidebar.active { right: 0; }
-        
-        .stat-box { margin-bottom: 25px; border-bottom: 1px dashed #333; padding-bottom: 15px; }
-        .stat-label { font-size: 0.7rem; opacity: 0.7; letter-spacing: 1px; }
-        .stat-value { font-size: 1.2rem; font-weight: bold; margin-top: 5px; }
-        .limit-ok { color: #00ff41; }
-        .limit-warn { color: #ffeb3b; }
-        .limit-bad { color: #ff0000; }
-        
-        .close-sidebar {
-            background: transparent;
-            border: 1px solid #333;
-            color: #fff;
-            width: 100%;
-            margin-top: 20px;
-            padding: 10px;
-        }
-        .close-sidebar:hover { background: #222; }
 
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-header h3 { font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; margin: 0; color: #aaa; }
+        
+        .stat-grid { display: grid; gap: 20px; }
+        
+        .stat-card {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .stat-label { font-size: 0.7rem; color: #888; font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-value { font-size: 1.4rem; font-weight: 500; color: #fff; }
+
+        /* Status Badges */
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge.healthy { background: #1e3a29; color: #4ade80; border: 1px solid #14532d; }
+        .badge.warn    { background: #422006; color: #facc15; border: 1px solid #713f12; }
+        .badge.critical{ background: #450a0a; color: #f87171; border: 1px solid #7f1d1d; }
+        .badge.idle    { background: #1f2937; color: #9ca3af; border: 1px solid #374151; }
+
+        .close-sidebar {
+            width: 100%; margin-top: 40px; padding: 12px;
+            background: #fff; color: #000; border: none; border-radius: 6px;
+            font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .close-sidebar:hover { background: #e5e5e5; }
+
+        /* --- MAIN LAYOUT --- */
+        .container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+
+        header { grid-column: 1 / -1; margin-bottom: 20px; border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .branding h1 { font-weight: 600; font-size: 1.5rem; letter-spacing: -0.5px; }
+        .developer-tag { font-size: 0.7rem; color: var(--text-muted); }
+        .engine-tag { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        .panel { background: #fff; border: 1px solid var(--border-color); padding: 30px; position: relative; }
+        
+        textarea { width: 100%; height: 180px; padding: 15px; border: 1px solid var(--border-color); font-family: inherit; font-size: 1rem; resize: none; outline: none; border-radius: var(--radius); }
+        textarea:focus { border-color: var(--accent-color); }
+
+        .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        select { width: 100%; padding: 10px; border: 1px solid var(--border-color); background: white; cursor: pointer; border-radius: var(--radius); }
+        label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 5px; }
+
+        .button-stack { display: flex; gap: 10px; margin-top: 20px; }
+        button { padding: 12px 24px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; border-radius: var(--radius); }
+        .btn-primary { background: var(--accent-color); color: white; }
+        .btn-secondary { background: #eee; color: var(--text-main); }
+        
+        .output-area { min-height: 300px; white-space: pre-wrap; display: flex; flex-direction: column; }
+        .loader { position: absolute; inset: 0; background: rgba(255,255,255,0.95); display: none; align-items: center; justify-content: center; font-weight: 600; font-size: 0.7rem; letter-spacing: 2px; z-index: 10; }
+        
+        /* Polite Error Box */
+        #politeError {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #fdf2f2;
+            border-left: 3px solid #ef4444;
+            color: #b91c1c;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .hint { grid-column: 1 / -1; font-size: 0.75rem; color: var(--text-muted); margin-top: 40px; text-align: center; }
+        kbd { background: #eee; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
     </style>
 </head>
 <body>
 
 <div id="secretSidebar">
-    <h3 style="border-bottom: 2px solid #00ff41; padding-bottom: 10px; margin-bottom: 20px;">DEV_CONSOLE_V2</h3>
-    
-    <div class="stat-box">
-        <div class="stat-label">SESSION REQUESTS</div>
-        <div class="stat-value" id="devRequests">0</div>
+    <div class="sidebar-header">
+        <h3>DEVELOPER CONSOLE</h3>
+        <span style="font-size: 0.7rem; background: #444; padding: 2px 6px; border-radius: 4px;">V2.1</span>
     </div>
     
-    <div class="stat-box">
-        <div class="stat-label">TOKENS USED (SESSION)</div>
-        <div class="stat-value" id="devTokens">0</div>
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-label">Session Requests</div>
+            <div class="stat-value" id="devRequests">0</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-label">Session Tokens</div>
+            <div class="stat-value" id="devTokens">0</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">System Health</div>
+            <div id="devLimit" class="badge healthy">HEALTHY</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Last Status</div>
+            <div id="devStatus" class="badge idle">IDLE</div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 30px; font-size: 0.75rem; color: #666; line-height: 1.5;">
+        <strong>Note:</strong> Stats track your current browser session. Global limits (50/day) are managed by OpenRouter cloud.
     </div>
 
-    <div class="stat-box">
-        <div class="stat-label">EST. DAILY LIMIT (FREE)</div>
-        <div class="stat-value limit-ok" id="devLimit">HEALTHY</div>
-        <div style="font-size: 0.6rem; color: #666; margin-top: 5px;">Based on 200 req/day limit</div>
-    </div>
-
-    <div class="stat-box">
-        <div class="stat-label">LAST REQUEST STATUS</div>
-        <div class="stat-value" id="devStatus">IDLE</div>
-    </div>
-
-    <button class="close-sidebar" onclick="toggleSidebar()">[ CLOSE TERMINAL ]</button>
+    <button class="close-sidebar" onclick="toggleSidebar()">Close Panel</button>
 </div>
 
-<div class="container" id="mainContainer">
+<div class="container">
     <header>
         <div class="branding">
             <h1>REPLY ASSISTANT.AI</h1>
@@ -237,76 +171,42 @@
         <div class="engine-tag">Powered by NVIDIA Nemotron Nano</div>
     </header>
 
-    <div class="input-panel">
-        <div class="input-group">
-            <label for="incomingMessage">Incoming Message</label>
-            <textarea id="incomingMessage" placeholder="Paste the message or email here..."></textarea>
-        </div>
+    <div class="panel">
+        <label>Incoming Message</label>
+        <textarea id="incomingMessage" placeholder="Paste the message here..."></textarea>
 
         <div class="selectors">
-            <div class="input-group">
-                <label>English Level</label>
-                <select id="level">
-                    <option value="easy">Easy</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="hard">Hard</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Tone</label>
-                <select id="tone">
-                    <option value="respectful">Respectful</option>
-                    <option value="friendly">Friendly</option>
-                    <option value="polite">Polite</option>
-                    <option value="professional">Professional</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Length</label>
-                <select id="length">
-                    <option value="short">Short</option>
-                    <option value="normal" selected>Normal</option>
-                    <option value="long">Long</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Format</label>
-                <select id="format">
-                    <option value="message">Message (Chat)</option>
-                    <option value="email">Email</option>
-                </select>
-            </div>
+            <div><label>Level</label><select id="level"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select></div>
+            <div><label>Tone</label><select id="tone"><option value="polite">Polite</option><option value="friendly">Friendly</option><option value="professional" selected>Professional</option></select></div>
+            <div><label>Length</label><select id="length"><option value="short">Short</option><option value="normal" selected>Normal</option><option value="long">Long</option></select></div>
+            <div><label>Format</label><select id="format"><option value="message">Chat</option><option value="email">Email</option></select></div>
         </div>
 
         <div class="button-stack">
-            <button class="btn-primary" id="genBtn" onclick="generateReply('normal')">Generate Reply</button>
+            <button class="btn-primary" onclick="generateReply()">Generate Reply</button>
             <button class="btn-secondary" onclick="generateReply('regenerate')">Regenerate</button>
-            <button class="btn-secondary" onclick="openDevMode()" style="max-width: 50px;" title="Developer Mode">⚙️</button>
+            <button class="btn-secondary" onclick="openDevMode()" style="flex: 0 0 50px; display: flex; align-items: center; justify-content: center;" title="Settings">⚙️</button>
         </div>
+        
+        <div id="politeError"></div>
     </div>
 
-    <div class="output-panel">
+    <div class="panel">
         <label>Suggested Reply</label>
         <div class="output-area">
             <div class="loader" id="loader">NVIDIA NANO IS THINKING...</div>
-            <div class="output-header" id="outputMeta">No reply generated yet.</div>
             <div id="outputText">Your clean reply will appear here.</div>
         </div>
-        <div class="button-stack">
-            <button class="btn-secondary" style="width: 100%;" onclick="copyReply()">Copy to Clipboard</button>
-        </div>
-        <div id="errorLog"></div>
+        <button class="btn-secondary" style="width: 100%; margin-top: 20px;" onclick="copyReply()">Copy to Clipboard</button>
     </div>
 
-    <div class="hint">
-        Press <kbd>R</kbd> to refresh the assistant.
-    </div>
+    <div class="hint">Press <kbd>R</kbd> to refresh.</div>
 </div>
 
-<div class="copy-toast" id="toast">Copied to clipboard!</div>
+<div style="display: none;" id="toast">Copied!</div>
 
 <script>
-    // Session State (Tracks usage only for this open tab)
+    // --- REALTIME SESSION TRACKER ---
     let sessionRequests = 0;
     let sessionTokens = 0;
     const DEV_PASS = "131321313";
@@ -315,56 +215,51 @@
         const input = document.getElementById('incomingMessage').value;
         const loader = document.getElementById('loader');
         const output = document.getElementById('outputText');
-        const meta = document.getElementById('outputMeta');
-        const errorLog = document.getElementById('errorLog');
+        const politeError = document.getElementById('politeError');
 
-        if (!input) {
-            alert("Please paste an incoming message first.");
-            return;
-        }
+        if (!input) { alert("Please paste a message first."); return; }
 
         loader.style.display = 'flex';
-        errorLog.style.display = 'none';
-        output.style.opacity = '0.5';
+        politeError.style.display = 'none'; // Hide error if trying again
+        output.style.opacity = '0.3';
         updateDevStatus("PROCESSING...");
 
         try {
-            const level = document.getElementById('level').value;
-            const tone = document.getElementById('tone').value;
-            const length = document.getElementById('length').value;
-            const format = document.getElementById('format').value;
-
-            // Call the Vercel Backend
             const res = await fetch("/api/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ input, level, tone, length, format })
+                body: JSON.stringify({ 
+                    input, 
+                    level: document.getElementById('level').value, 
+                    tone: document.getElementById('tone').value, 
+                    length: document.getElementById('length').value, 
+                    format: document.getElementById('format').value 
+                })
             });
 
             const data = await res.json();
-            
+
             if (!res.ok) {
-                // Handle Errors from Backend (Limits etc)
-                updateDevStatus("ERROR: " + res.status);
-                throw new Error(data.error || "Connection Failed");
+                // Show Polite Message instead of Alert
+                politeError.innerText = data.error || "An unexpected error occurred.";
+                politeError.style.display = 'block';
+                updateDevStatus("API ERROR");
+                return;
             }
 
-            // Success!
+            // Success: Update Stats
             sessionRequests++;
             if(data.usage) sessionTokens += data.usage.total_tokens || 0;
             updateDevStats();
 
-            meta.innerText = `${format.toUpperCase()} • ${tone.toUpperCase()} • ${level.toUpperCase()}`;
-            output.innerText = data.reply; // Clean text directly
+            output.innerText = data.reply;
             output.style.opacity = '1';
-            updateDevStatus("SUCCESS (200 OK)");
+            updateDevStatus("SUCCESS (200)");
 
         } catch (err) {
-            console.error(err);
-            errorLog.innerText = `Error: ${err.message}`;
-            errorLog.style.display = 'block';
-            output.innerText = "Error. Check Developer Panel for details.";
-            updateDevStatus("FAILED");
+            politeError.innerText = "Network Error: Please check your internet connection.";
+            politeError.style.display = 'block';
+            updateDevStatus("NET ERROR");
         } finally {
             loader.style.display = 'none';
         }
@@ -373,49 +268,46 @@
     function copyReply() {
         const text = document.getElementById('outputText').innerText;
         if (!text || text.includes("appear here")) return;
-        
-        navigator.clipboard.writeText(text).then(() => {
-            const toast = document.getElementById('toast');
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
-        });
+        navigator.clipboard.writeText(text);
+        alert("Copied to clipboard!");
     }
 
-    // --- DEVELOPER MODE FUNCTIONS ---
+    // --- DEVELOPER PANEL LOGIC ---
     function openDevMode() {
         const pass = prompt("Enter Developer Key:");
         if (pass === DEV_PASS) {
-            toggleSidebar();
+            document.getElementById('secretSidebar').classList.add('active');
         } else {
             alert("Access Denied.");
         }
     }
 
     function toggleSidebar() {
-        const sb = document.getElementById('secretSidebar');
-        sb.classList.toggle('active');
+        document.getElementById('secretSidebar').classList.remove('active');
     }
 
     function updateDevStats() {
         document.getElementById('devRequests').innerText = sessionRequests;
         document.getElementById('devTokens').innerText = sessionTokens;
         
-        // Simple Logic for Limit Warning
         const limitBox = document.getElementById('devLimit');
-        if (sessionRequests > 150) {
-            limitBox.innerText = "CRITICAL (NEAR LIMIT)";
-            limitBox.className = "stat-value limit-bad";
-        } else if (sessionRequests > 50) {
-            limitBox.innerText = "MODERATE USE";
-            limitBox.className = "stat-value limit-warn";
+        
+        // Simulating "Load" based on session speed
+        if (sessionRequests > 200) {
+            limitBox.innerText = "HIGH LOAD";
+            limitBox.className = "badge critical";
         } else {
             limitBox.innerText = "HEALTHY";
-            limitBox.className = "stat-value limit-ok";
+            limitBox.className = "badge healthy";
         }
     }
 
     function updateDevStatus(msg) {
-        document.getElementById('devStatus').innerText = msg;
+        const statusBox = document.getElementById('devStatus');
+        statusBox.innerText = msg;
+        if(msg.includes("ERROR")) statusBox.className = "badge critical";
+        else if(msg.includes("PROCESSING")) statusBox.className = "badge warn";
+        else statusBox.className = "badge idle";
     }
 
     window.addEventListener('keydown', (e) => {
