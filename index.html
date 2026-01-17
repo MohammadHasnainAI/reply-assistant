@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Humanized Reply Assistant | Mohammad Hasnain</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 1. YOUR ORIGINAL DESIGN CSS --- */
+        /* --- 1. ORIGINAL MINIMALIST DESIGN --- */
         :root {
             --bg-color: #fcfcfc;
             --text-main: #1a1a1a;
@@ -55,10 +55,6 @@
         .branding h1 { font-weight: 600; font-size: 1.5rem; letter-spacing: -0.5px; margin: 0; line-height: 1; }
         .developer-tag { font-size: 0.7rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
         .engine-tag { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; text-align: right; }
-
-        .input-panel, .output-panel {
-            display: flex; flex-direction: column;
-        }
 
         .input-group { margin-bottom: 24px; }
         label { display: block; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
@@ -169,7 +165,7 @@
         kbd { background: #eee; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
         #errorLog { color: #d32f2f; font-size: 0.75rem; margin-top: 10px; display: none; word-break: break-all; }
 
-        /* --- 2. NEW MENU & SIDEBAR STYLES --- */
+        /* --- 2. MENU & SIDEBAR ADDITIONS --- */
         .menu-wrapper { position: relative; }
         .menu-btn { 
             background: none; border: none; font-size: 1.6rem; cursor: pointer; padding: 0 10px; color: #000; line-height: 1;
@@ -298,7 +294,7 @@
             <div class="input-group">
                 <label>Format</label>
                 <select id="format">
-                    <option value="message">Message (Chat)</option>
+                    <option value="message">Chat Message</option>
                     <option value="email">Email</option>
                 </select>
             </div>
