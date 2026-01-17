@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Humanized Reply Assistant | Mohammad Hasnain</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* --- CORE MINIMALIST THEME --- */
+        /* --- ORIGINAL MINIMALIST DESIGN --- */
         :root {
             --bg-color: #fcfcfc;
             --text-main: #1a1a1a;
@@ -14,16 +14,193 @@
             --border-color: #e0e0e0;
             --accent-color: #000;
             --radius: 4px;
+            --transition: 0.2s ease;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding: 40px 20px; overflow-x: hidden; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+            overflow-x: hidden; 
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+
+        header {
+            grid-column: 1 / -1;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .branding h1 { font-weight: 600; font-size: 1.5rem; letter-spacing: -0.5px; }
+        .developer-tag { font-size: 0.7rem; font-weight: 400; color: var(--text-muted); margin-top: -2px; }
+        .engine-tag { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; text-align: right; }
+
+        /* --- 3-DOT MENU (EXPAND MENU) --- */
+        .menu-wrapper { position: relative; }
+        .menu-btn { 
+            background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0 10px; line-height: 1;
+        }
+        .menu-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 30px;
+            background-color: #fff;
+            min-width: 160px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+        }
+        .menu-content button {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            font-size: 0.85rem;
+            border-radius: 0;
+        }
+        .menu-content button:hover { background-color: #f5f5f5; }
+        .menu-wrapper:hover .menu-content { display: block; }
+
+
+        .input-group { margin-bottom: 24px; }
+        label { display: block; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            transition: var(--transition);
+        }
+        textarea:focus { border-color: var(--accent-color); }
+
+        .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            background: white;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .button-stack { display: flex; gap: 10px; margin-top: 20px; }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            border-radius: var(--radius);
+        }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+
+        .btn-primary { background: var(--accent-color); color: white; }
+        .btn-primary:hover { opacity: 0.8; }
+        .btn-secondary { background: #eee; color: var(--text-main); }
+        .btn-secondary:hover { background: #e0e0e0; }
+
+        .output-area {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            position: relative;
+            min-height: 300px;
+            white-space: pre-wrap;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-header {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        #outputText { flex-grow: 1; font-size: 1.05rem; }
+
+        .loader {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            font-weight: 600;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .copy-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #000;
+            color: #fff;
+            padding: 12px 24px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+        .copy-toast.show { transform: translateX(-50%) translateY(0); }
+
+        .hint {
+            grid-column: 1 / -1;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        kbd { background: #eee; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+        #errorLog { color: #d32f2f; font-size: 0.75rem; margin-top: 10px; display: none; word-break: break-all; }
 
         /* --- PROFESSIONAL LEFT SIDEBAR --- */
         #secretSidebar {
             position: fixed;
             top: 0;
-            left: -400px; /* Hidden on Left */
+            left: -400px; /* Hidden on LEFT */
             width: 380px;
             height: 100vh;
             background: #ffffff;
@@ -38,13 +215,12 @@
         #secretSidebar.active { left: 0; }
 
         .sidebar-header {
-            background: #0f172a; /* Midnight Navy */
+            background: #0f172a; /* Professional Navy */
             color: #fff;
             padding: 25px;
             border-bottom: 1px solid #1e293b;
         }
         .sidebar-header h3 { font-size: 1rem; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 5px; }
-        .sidebar-header span { font-size: 0.75rem; opacity: 0.7; }
 
         .sidebar-content { padding: 25px; overflow-y: auto; flex-grow: 1; }
 
@@ -63,7 +239,6 @@
         
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
         .bg-green { background: #dcfce7; color: #166534; }
-        .bg-yellow { background: #fef9c3; color: #854d0e; }
         .bg-red { background: #fee2e2; color: #991b1b; }
 
         .close-btn {
@@ -78,34 +253,6 @@
             transition: 0.2s;
         }
         .close-btn:hover { background: #e2e8f0; }
-
-        /* --- MAIN APP STYLES --- */
-        .container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
-
-        header { grid-column: 1 / -1; margin-bottom: 20px; border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
-        .branding h1 { font-weight: 600; font-size: 1.5rem; letter-spacing: -0.5px; }
-        .developer-tag { font-size: 0.7rem; color: var(--text-muted); }
-        .engine-tag { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; text-align: right; }
-
-        .input-group label { display: block; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
-        textarea, select { width: 100%; border: 1px solid var(--border-color); border-radius: var(--radius); outline: none; transition: 0.2s; font-family: inherit; }
-        textarea { height: 180px; padding: 15px; resize: none; }
-        select { padding: 10px; background: white; cursor: pointer; }
-        textarea:focus, select:focus { border-color: var(--accent-color); }
-
-        .button-stack { display: flex; gap: 10px; margin-top: 20px; }
-        button { flex: 1; padding: 12px; border: none; cursor: pointer; font-weight: 600; font-radius: var(--radius); transition: 0.2s; }
-        .btn-primary { background: var(--accent-color); color: white; }
-        .btn-secondary { background: #eee; color: var(--text-main); }
-        
-        /* Menu Button */
-        .menu-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0 10px; }
-
-        .output-area { background: #fff; border: 1px solid var(--border-color); padding: 30px; min-height: 300px; border-radius: var(--radius); position: relative; }
-        .loader { position: absolute; inset: 0; background: rgba(255,255,255,0.95); display: none; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; letter-spacing: 1px; }
-        
-        #errorLog { display: none; margin-top: 10px; color: #dc2626; font-size: 0.8rem; padding: 10px; background: #fef2f2; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -113,58 +260,35 @@
 <div id="secretSidebar">
     <div class="sidebar-header">
         <h3>DEVELOPER DASHBOARD</h3>
-        <span>Global API Monitor v2.1</span>
+        <span style="font-size: 0.75rem; opacity: 0.7;">Global API Monitor v2.1</span>
     </div>
     
     <div class="sidebar-content">
         <div class="stat-section">
-            <div class="section-title">Global Limits (All Users)</div>
+            <div class="section-title">Real-Time Global Limits (All Users)</div>
             
             <div class="stat-row">
-                <span class="stat-name">Requests Remaining (Daily)</span>
+                <span class="stat-name">Requests Remaining (Day)</span>
                 <span class="stat-val badge bg-green" id="limitDay">Checking...</span>
             </div>
             <div class="stat-row">
                 <span class="stat-name">Minute Throttle</span>
                 <span class="stat-val badge bg-green" id="limitMin">Active</span>
             </div>
-            <div class="stat-row">
-                <span class="stat-name">System Status</span>
-                <span class="stat-val" id="apiStatus">Operational</span>
-            </div>
         </div>
 
         <div class="stat-section">
             <div class="section-title">Estimated Quotas</div>
-            
-            <div class="stat-row">
-                <span class="stat-name">Hourly Limit</span>
-                <span class="stat-val">~50 Requests</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-name">Daily Limit</span>
-                <span class="stat-val">200 Requests</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-name">Monthly Limit</span>
-                <span class="stat-val">Unlimited (Free)</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-name">Yearly Limit</span>
-                <span class="stat-val">Unlimited (Free)</span>
-            </div>
+            <div class="stat-row"><span class="stat-name">Hourly</span><span class="stat-val">~50 Reqs</span></div>
+            <div class="stat-row"><span class="stat-name">Daily</span><span class="stat-val">200 Reqs</span></div>
+            <div class="stat-row"><span class="stat-name">Monthly</span><span class="stat-val">Unlimited</span></div>
+            <div class="stat-row"><span class="stat-name">Yearly</span><span class="stat-val">Unlimited</span></div>
         </div>
 
         <div class="stat-section">
-            <div class="section-title">Your Session</div>
-            <div class="stat-row">
-                <span class="stat-name">Requests Sent</span>
-                <span class="stat-val" id="sessionReq">0</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-name">Tokens Consumed</span>
-                <span class="stat-val" id="sessionTok">0</span>
-            </div>
+            <div class="section-title">Current Session</div>
+            <div class="stat-row"><span class="stat-name">Requests</span><span class="stat-val" id="sessionReq">0</span></div>
+            <div class="stat-row"><span class="stat-name">Tokens</span><span class="stat-val" id="sessionTok">0</span></div>
         </div>
     </div>
     
@@ -177,27 +301,33 @@
             <h1>REPLY ASSISTANT.AI</h1>
             <div class="developer-tag">Developed by Mohammad Hasnain</div>
         </div>
-        <div style="display: flex; align-items: center;">
+        <div style="display: flex; align-items: flex-end; gap: 10px;">
             <div class="engine-tag">Powered by NVIDIA Nemotron Nano</div>
-            <button class="menu-btn" onclick="openDevMode()">⋮</button>
+            <div class="menu-wrapper">
+                <button class="menu-btn">⋮</button>
+                <div class="menu-content">
+                    <button onclick="window.location.reload()">Refresh App</button>
+                    <button onclick="openDevMode()">Developer Mode</button>
+                </div>
+            </div>
         </div>
     </header>
 
     <div class="input-panel">
         <div class="input-group">
-            <label>Incoming Message</label>
+            <label for="incomingMessage">Incoming Message</label>
             <textarea id="incomingMessage" placeholder="Paste the message or email here..."></textarea>
         </div>
 
         <div class="selectors">
             <div class="input-group"><label>English Level</label><select id="level"><option value="medium">Medium</option><option value="hard">Hard</option></select></div>
-            <div class="input-group"><label>Tone</label><select id="tone"><option value="professional">Professional</option><option value="friendly">Friendly</option></select></div>
+            <div class="input-group"><label>Tone</label><select id="tone"><option value="respectful">Respectful</option><option value="professional">Professional</option><option value="friendly">Friendly</option></select></div>
             <div class="input-group"><label>Length</label><select id="length"><option value="normal">Normal</option><option value="short">Short</option></select></div>
             <div class="input-group"><label>Format</label><select id="format"><option value="message">Chat</option><option value="email">Email</option></select></div>
         </div>
 
         <div class="button-stack">
-            <button class="btn-primary" onclick="generateReply()">Generate Reply</button>
+            <button class="btn-primary" id="genBtn" onclick="generateReply('normal')">Generate Reply</button>
             <button class="btn-secondary" onclick="generateReply('regenerate')">Regenerate</button>
         </div>
     </div>
@@ -205,13 +335,20 @@
     <div class="output-panel">
         <label>Suggested Reply</label>
         <div class="output-area">
-            <div class="loader" id="loader">GENERATING REPLY...</div>
+            <div class="loader" id="loader">NVIDIA NANO IS THINKING...</div>
+            <div class="output-header" id="outputMeta">No reply generated yet.</div>
             <div id="outputText">Your clean reply will appear here.</div>
         </div>
-        <button class="btn-secondary" style="width: 100%; margin-top: 20px;" onclick="copyReply()">Copy to Clipboard</button>
+        <div class="button-stack">
+            <button class="btn-secondary" style="width: 100%;" onclick="copyReply()">Copy to Clipboard</button>
+        </div>
         <div id="errorLog"></div>
     </div>
+
+    <div class="hint">Press <kbd>R</kbd> to refresh the assistant.</div>
 </div>
+
+<div class="copy-toast" id="toast">Copied to clipboard!</div>
 
 <script>
     let sessionReq = 0;
@@ -222,69 +359,62 @@
         const input = document.getElementById('incomingMessage').value;
         const loader = document.getElementById('loader');
         const output = document.getElementById('outputText');
+        const meta = document.getElementById('outputMeta');
         const errorLog = document.getElementById('errorLog');
 
-        if (!input) { alert("Please paste a message first."); return; }
+        if (!input) { alert("Please paste an incoming message first."); return; }
 
         loader.style.display = 'flex';
         errorLog.style.display = 'none';
         output.style.opacity = '0.5';
 
         try {
+            const level = document.getElementById('level').value;
+            const tone = document.getElementById('tone').value;
+            const length = document.getElementById('length').value;
+            const format = document.getElementById('format').value;
+
             const res = await fetch("/api/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    input,
-                    level: document.getElementById('level').value,
-                    tone: document.getElementById('tone').value,
-                    length: document.getElementById('length').value,
-                    format: document.getElementById('format').value
-                })
+                body: JSON.stringify({ input, level, tone, length, format })
             });
 
             const data = await res.json();
 
-            // UPDATE SIDEBAR STATS FROM API HEADERS (Global Data)
+            // UPDATE GLOBAL STATS
             if (data.limits) {
                 const rem = data.limits.remaining_day;
                 const limitBadge = document.getElementById('limitDay');
-                
                 if(rem !== "Unknown") {
                     limitBadge.innerText = rem + " / 200";
-                    // Change badge color if low on requests
                     if(rem < 10) { limitBadge.className = "stat-val badge bg-red"; }
                     else { limitBadge.className = "stat-val badge bg-green"; }
                 }
             }
 
             if (!res.ok) {
-                // If Limit Hit, Show Red Error Message in Output Box
                 if (data.isLimit) {
-                    output.innerText = data.error;
-                    output.style.color = "#dc2626";
-                    document.getElementById('apiStatus').innerText = "LIMIT HIT (429)";
-                    document.getElementById('apiStatus').style.color = "red";
+                    output.innerText = data.error; 
+                    output.style.color = "#d32f2f";
                 } else {
                     throw new Error(data.error);
                 }
             } else {
-                // Success
                 sessionReq++;
                 sessionTok += (data.usage?.total_tokens || 0);
                 updateSidebar();
 
+                meta.innerText = `${format.toUpperCase()} • ${tone.toUpperCase()} • ${level.toUpperCase()}`;
                 output.innerText = data.reply;
                 output.style.color = "inherit";
-                document.getElementById('apiStatus').innerText = "Operational";
-                document.getElementById('apiStatus').style.color = "green";
             }
             output.style.opacity = '1';
 
         } catch (err) {
-            errorLog.innerText = "Error: " + err.message;
+            errorLog.innerText = `Error: ${err.message}`;
             errorLog.style.display = 'block';
-            output.innerText = "Connection failed.";
+            output.innerText = "Check connection.";
         } finally {
             loader.style.display = 'none';
         }
@@ -310,9 +440,19 @@
 
     function copyReply() {
         const text = document.getElementById('outputText').innerText;
-        navigator.clipboard.writeText(text);
-        alert("Copied!");
+        if (!text || text.includes("appear here")) return;
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        });
     }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key.toLowerCase() === 'r' && document.activeElement.tagName !== 'TEXTAREA') {
+            window.location.reload();
+        }
+    });
 </script>
 
 </body>
