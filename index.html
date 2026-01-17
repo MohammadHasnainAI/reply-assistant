@@ -3,456 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Humanized Reply Assistant | Mohammad Hasnain</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Reply Assistant | Mohammad Hasnain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- ORIGINAL MINIMALIST DESIGN --- */
+        /* --- 1. MAIN THEME (Minimalist Black & White) --- */
         :root {
-            --bg-color: #fcfcfc;
-            --text-main: #1a1a1a;
+            --bg-color: #ffffff;
+            --text-main: #111;
             --text-muted: #666;
-            --border-color: #e0e0e0;
-            --accent-color: #000;
-            --radius: 4px;
-            --transition: 0.2s ease;
+            --border-color: #ddd;
+            --radius: 4px; /* Sharp/Small radius for old feel */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); padding: 40px 20px; overflow-x: hidden; }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            line-height: 1.6;
-            padding: 40px 20px;
-            overflow-x: hidden; 
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-        }
-
-        @media (max-width: 768px) {
-            .container { grid-template-columns: 1fr; }
-        }
+        .container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
 
         header {
-            grid-column: 1 / -1;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+            grid-column: 1 / -1; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
         }
+        
+        /* Left Side: Menu + Branding */
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        
+        .branding h1 { font-weight: 700; font-size: 1.4rem; letter-spacing: -0.5px; text-transform: uppercase; margin: 0; }
+        .branding span { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; display: block; line-height: 1; }
+        .engine-tag { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
-        .branding h1 { font-weight: 600; font-size: 1.5rem; letter-spacing: -0.5px; }
-        .developer-tag { font-size: 0.7rem; font-weight: 400; color: var(--text-muted); margin-top: -2px; }
-        .engine-tag { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; text-align: right; }
-
-        /* --- 3-DOT MENU (EXPAND MENU) --- */
+        /* --- 2. LEFT MENU (3 DOTS) --- */
         .menu-wrapper { position: relative; }
         .menu-btn { 
-            background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0 10px; line-height: 1;
+            background: none; border: none; font-size: 1.8rem; cursor: pointer; padding: 0 5px; color: #000; line-height: 1;
         }
-        .menu-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 30px;
-            background-color: #fff;
-            min-width: 160px;
-            box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
-            z-index: 100;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
+        .menu-dropdown {
+            display: none; position: absolute; top: 100%; left: 0; 
+            background: #fff; border: 1px solid #000; min-width: 180px; z-index: 100;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
         }
-        .menu-content button {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            width: 100%;
-            text-align: left;
-            background: none;
-            border: none;
-            font-size: 0.85rem;
-            border-radius: 0;
+        .menu-dropdown button {
+            display: block; width: 100%; padding: 12px 15px; text-align: left; background: none; border: none;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer; border-bottom: 1px solid #eee;
         }
-        .menu-content button:hover { background-color: #f5f5f5; }
-        .menu-wrapper:hover .menu-content { display: block; }
+        .menu-dropdown button:last-child { border-bottom: none; }
+        .menu-dropdown button:hover { background: #f5f5f5; }
+        .menu-wrapper:hover .menu-dropdown { display: block; }
 
-
-        .input-group { margin-bottom: 24px; }
-        label { display: block; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
-
+        /* --- 3. INPUT & OUTPUT PANELS (Original Design) --- */
+        .panel { display: flex; flex-direction: column; height: 100%; }
+        
+        label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: #444; display: block; }
+        
         textarea {
-            width: 100%;
-            height: 180px;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            font-family: inherit;
-            font-size: 1rem;
-            resize: none;
-            outline: none;
-            transition: var(--transition);
+            width: 100%; height: 200px; padding: 15px; border: 1px solid var(--border-color);
+            font-family: inherit; font-size: 1rem; resize: none; outline: none; transition: 0.2s;
+            border-radius: var(--radius); margin-bottom: 15px;
         }
-        textarea:focus { border-color: var(--accent-color); }
+        textarea:focus { border-color: #000; }
 
-        .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            background: white;
-            font-family: inherit;
-            outline: none;
-            cursor: pointer;
+        /* --- BOTTOM SELECTORS --- */
+        .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        select { 
+            width: 100%; padding: 10px; border: 1px solid var(--border-color); background: #fff; 
+            font-size: 0.85rem; cursor: pointer; border-radius: var(--radius); outline: none; font-weight: 500;
         }
+        select:focus { border-color: #000; }
 
-        .button-stack { display: flex; gap: 10px; margin-top: 20px; }
-
-        button {
-            padding: 12px 24px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: var(--transition);
-            border-radius: var(--radius);
+        /* --- BUTTONS --- */
+        .button-stack { display: flex; gap: 10px; }
+        .btn-primary { 
+            flex: 2; padding: 12px; background: #000; color: #fff; border: none; font-weight: 600; cursor: pointer; border-radius: var(--radius); 
         }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-
-        .btn-primary { background: var(--accent-color); color: white; }
+        .btn-secondary { 
+            flex: 1; padding: 12px; background: #f0f0f0; color: #000; border: none; font-weight: 600; cursor: pointer; border-radius: var(--radius); 
+        }
         .btn-primary:hover { opacity: 0.8; }
-        .btn-secondary { background: #eee; color: var(--text-main); }
         .btn-secondary:hover { background: #e0e0e0; }
 
-        .output-area {
-            background: #fff;
-            border: 1px solid var(--border-color);
-            padding: 30px;
-            position: relative;
-            min-height: 300px;
-            white-space: pre-wrap;
-            display: flex;
-            flex-direction: column;
+        /* --- OUTPUT AREA --- */
+        .output-box {
+            flex-grow: 1; border: 1px solid var(--border-color); background: #fafafa; padding: 25px;
+            border-radius: var(--radius); position: relative; min-height: 200px; white-space: pre-wrap;
         }
-
-        .output-header {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 5px;
-        }
-
-        #outputText { flex-grow: 1; font-size: 1.05rem; }
-
         .loader {
-            position: absolute;
-            inset: 0;
-            background: rgba(255,255,255,0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            font-weight: 600;
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            position: absolute; inset: 0; background: rgba(255,255,255,0.9); display: none; 
+            align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; letter-spacing: 1px;
         }
 
-        .copy-toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #000;
-            color: #fff;
-            padding: 12px 24px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1000;
+        /* --- 4. PROFESSIONAL LEFT SIDEBAR (Admin Style) --- */
+        #adminSidebar {
+            position: fixed; top: 0; left: -360px; width: 320px; height: 100vh;
+            background: #fff; color: #333; z-index: 2000;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+            transition: left 0.3s ease; border-right: 1px solid #eee;
+            display: flex; flex-direction: column;
         }
-        .copy-toast.show { transform: translateX(-50%) translateY(0); }
-
-        .hint {
-            grid-column: 1 / -1;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 40px;
-            text-align: center;
-        }
-
-        kbd { background: #eee; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
-        #errorLog { color: #d32f2f; font-size: 0.75rem; margin-top: 10px; display: none; word-break: break-all; }
-
-        /* --- PROFESSIONAL LEFT SIDEBAR --- */
-        #secretSidebar {
-            position: fixed;
-            top: 0;
-            left: -400px; /* Hidden on LEFT */
-            width: 380px;
-            height: 100vh;
-            background: #ffffff;
-            color: #333;
-            box-shadow: 10px 0 40px rgba(0,0,0,0.15);
-            transition: left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid #e5e7eb;
-        }
-        #secretSidebar.active { left: 0; }
+        #adminSidebar.active { left: 0; }
 
         .sidebar-header {
-            background: #0f172a; /* Professional Navy */
-            color: #fff;
-            padding: 25px;
-            border-bottom: 1px solid #1e293b;
+            padding: 25px; background: #1e293b; color: #fff; /* Professional Slate Blue */
         }
-        .sidebar-header h3 { font-size: 1rem; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .sidebar-header h3 { font-size: 1rem; font-weight: 600; margin-bottom: 5px; letter-spacing: 0.5px; }
+        .sidebar-header p { font-size: 0.75rem; opacity: 0.7; }
 
-        .sidebar-content { padding: 25px; overflow-y: auto; flex-grow: 1; }
-
-        .stat-section { margin-bottom: 30px; }
-        .section-title { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
-        .stat-name { font-size: 0.85rem; font-weight: 500; color: #475569; }
-        .stat-val { font-size: 0.9rem; font-weight: 600; color: #0f172a; }
+        .sidebar-body { padding: 25px; overflow-y: auto; }
         
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
-        .bg-green { background: #dcfce7; color: #166534; }
-        .bg-red { background: #fee2e2; color: #991b1b; }
+        .stat-group { margin-bottom: 30px; }
+        .stat-title { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; }
+        
+        .stat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+        .stat-val { font-weight: 600; color: #0f172a; }
+        
+        /* Status Badges */
+        .badge { background: #dcfce7; color: #166534; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+        .badge.red { background: #fee2e2; color: #991b1b; }
+        .badge.gray { background: #f3f4f6; color: #4b5563; }
 
-        .close-btn {
-            margin: 20px;
-            padding: 12px;
-            background: #f1f5f9;
-            border: none;
-            border-radius: var(--radius);
-            font-weight: 600;
-            cursor: pointer;
-            color: #334155;
-            transition: 0.2s;
+        /* --- 5. PASSWORD MODAL (Compact Left Side) --- */
+        #passModal {
+            position: fixed; top: 70px; left: 20px; width: 240px;
+            background: #fff; border: 1px solid #000; padding: 15px;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.1); z-index: 3000;
+            display: none; border-radius: var(--radius);
         }
-        .close-btn:hover { background: #e2e8f0; }
+        #passModal input {
+            width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; font-size: 0.9rem;
+        }
+
     </style>
 </head>
 <body>
 
-<div id="secretSidebar">
+<div id="passModal">
+    <label style="margin-bottom: 5px;">Admin Password</label>
+    <input type="password" id="adminKey" placeholder="Enter Key...">
+    <div style="display: flex; gap: 5px;">
+        <button class="btn-primary" style="padding: 6px; font-size: 0.8rem;" onclick="checkAdmin()">Unlock</button>
+        <button class="btn-secondary" style="padding: 6px; font-size: 0.8rem;" onclick="closePass()">Cancel</button>
+    </div>
+</div>
+
+<div id="adminSidebar">
     <div class="sidebar-header">
-        <h3>DEVELOPER DASHBOARD</h3>
-        <span style="font-size: 0.75rem; opacity: 0.7;">Global API Monitor v2.1</span>
+        <h3>Admin Dashboard</h3>
+        <p>Global API Monitor v3.0</p>
     </div>
-    
-    <div class="sidebar-content">
-        <div class="stat-section">
-            <div class="section-title">Real-Time Global Limits (All Users)</div>
-            
+    <div class="sidebar-body">
+        
+        <div class="stat-group">
+            <div class="stat-title">Real-Time Global Limits</div>
             <div class="stat-row">
-                <span class="stat-name">Requests Remaining (Day)</span>
-                <span class="stat-val badge bg-green" id="limitDay">Checking...</span>
+                <span>Remaining Today</span>
+                <span class="badge gray" id="limitDay">Connect...</span>
             </div>
             <div class="stat-row">
-                <span class="stat-name">Minute Throttle</span>
-                <span class="stat-val badge bg-green" id="limitMin">Active</span>
+                <span>Minute Status</span>
+                <span class="badge" id="limitMin">Active</span>
             </div>
         </div>
 
-        <div class="stat-section">
-            <div class="section-title">Estimated Quotas</div>
-            <div class="stat-row"><span class="stat-name">Hourly</span><span class="stat-val">~50 Reqs</span></div>
-            <div class="stat-row"><span class="stat-name">Daily</span><span class="stat-val">200 Reqs</span></div>
-            <div class="stat-row"><span class="stat-name">Monthly</span><span class="stat-val">Unlimited</span></div>
-            <div class="stat-row"><span class="stat-name">Yearly</span><span class="stat-val">Unlimited</span></div>
+        <div class="stat-group">
+            <div class="stat-title">Quota Estimates</div>
+            <div class="stat-row"><span>Hourly</span> <span class="stat-val">~50</span></div>
+            <div class="stat-row"><span>Daily Total</span> <span class="stat-val">200</span></div>
+            <div class="stat-row"><span>Monthly</span> <span class="stat-val">Unlimited</span></div>
+            <div class="stat-row"><span>Yearly</span> <span class="stat-val">Unlimited</span></div>
         </div>
 
-        <div class="stat-section">
-            <div class="section-title">Current Session</div>
-            <div class="stat-row"><span class="stat-name">Requests</span><span class="stat-val" id="sessionReq">0</span></div>
-            <div class="stat-row"><span class="stat-name">Tokens</span><span class="stat-val" id="sessionTok">0</span></div>
+        <div class="stat-group">
+            <div class="stat-title">Current Session</div>
+            <div class="stat-row"><span>Requests Sent</span> <span class="stat-val" id="sessReq">0</span></div>
+            <div class="stat-row"><span>Tokens Used</span> <span class="stat-val" id="sessTok">0</span></div>
         </div>
+
+        <button class="btn-secondary" style="width:100%; margin-top:20px;" onclick="closeSidebar()">Close Panel</button>
     </div>
-    
-    <button class="close-btn" onclick="toggleSidebar()">Close Dashboard</button>
 </div>
 
 <div class="container">
     <header>
-        <div class="branding">
-            <h1>REPLY ASSISTANT.AI</h1>
-            <div class="developer-tag">Developed by Mohammad Hasnain</div>
-        </div>
-        <div style="display: flex; align-items: flex-end; gap: 10px;">
-            <div class="engine-tag">Powered by NVIDIA Nemotron Nano</div>
+        <div class="header-left">
             <div class="menu-wrapper">
                 <button class="menu-btn">⋮</button>
-                <div class="menu-content">
+                <div class="menu-dropdown">
                     <button onclick="window.location.reload()">Refresh App</button>
-                    <button onclick="openDevMode()">Developer Mode</button>
+                    <button onclick="showPassInput()">Developer Mode</button>
                 </div>
             </div>
+            <div class="branding">
+                <h1>Reply Assistant.AI</h1>
+                <span>Developed by Mohammad Hasnain</span>
+            </div>
         </div>
+        
+        <div class="engine-tag">NVIDIA NEMOTRON NANO</div>
     </header>
 
-    <div class="input-panel">
-        <div class="input-group">
-            <label for="incomingMessage">Incoming Message</label>
-            <textarea id="incomingMessage" placeholder="Paste the message or email here..."></textarea>
-        </div>
-
+    <div class="panel">
+        <label>Incoming Message</label>
+        <textarea id="inputMsg" placeholder="Paste the message here..."></textarea>
+        
         <div class="selectors">
-            <div class="input-group"><label>English Level</label><select id="level"><option value="medium">Medium</option><option value="hard">Hard</option></select></div>
-            <div class="input-group"><label>Tone</label><select id="tone"><option value="respectful">Respectful</option><option value="professional">Professional</option><option value="friendly">Friendly</option></select></div>
-            <div class="input-group"><label>Length</label><select id="length"><option value="normal">Normal</option><option value="short">Short</option></select></div>
-            <div class="input-group"><label>Format</label><select id="format"><option value="message">Chat</option><option value="email">Email</option></select></div>
+            <select id="level"><option value="medium">Medium</option><option value="easy">Easy</option><option value="hard">Hard</option></select>
+            <select id="tone"><option value="professional">Professional</option><option value="friendly">Friendly</option><option value="polite">Polite</option></select>
+            <select id="length"><option value="normal">Normal Length</option><option value="short">Short</option><option value="long">Long</option></select>
+            <select id="format"><option value="message">Chat Message</option><option value="email">Email</option></select>
         </div>
 
         <div class="button-stack">
-            <button class="btn-primary" id="genBtn" onclick="generateReply('normal')">Generate Reply</button>
-            <button class="btn-secondary" onclick="generateReply('regenerate')">Regenerate</button>
+            <button class="btn-primary" onclick="generate()">Generate Reply</button>
+            <button class="btn-secondary" onclick="generate('regen')">Regenerate</button>
         </div>
     </div>
 
-    <div class="output-panel">
+    <div class="panel">
         <label>Suggested Reply</label>
-        <div class="output-area">
-            <div class="loader" id="loader">NVIDIA NANO IS THINKING...</div>
-            <div class="output-header" id="outputMeta">No reply generated yet.</div>
-            <div id="outputText">Your clean reply will appear here.</div>
+        <div class="output-box">
+            <div class="loader" id="loader">GENERATING...</div>
+            <div id="outputTxt">Your clean reply will appear here.</div>
         </div>
-        <div class="button-stack">
-            <button class="btn-secondary" style="width: 100%;" onclick="copyReply()">Copy to Clipboard</button>
-        </div>
-        <div id="errorLog"></div>
+        <button class="btn-secondary" style="width: 100%; margin-top: 15px;" onclick="copyText()">Copy to Clipboard</button>
     </div>
-
-    <div class="hint">Press <kbd>R</kbd> to refresh the assistant.</div>
 </div>
 
-<div class="copy-toast" id="toast">Copied to clipboard!</div>
-
 <script>
-    let sessionReq = 0;
-    let sessionTok = 0;
-    const DEV_PASS = "131321313";
+    let sessReq = 0;
+    let sessTok = 0;
+    const KEY = "131321313";
 
-    async function generateReply(type) {
-        const input = document.getElementById('incomingMessage').value;
+    async function generate(type) {
+        const input = document.getElementById('inputMsg').value;
         const loader = document.getElementById('loader');
-        const output = document.getElementById('outputText');
-        const meta = document.getElementById('outputMeta');
-        const errorLog = document.getElementById('errorLog');
+        const output = document.getElementById('outputTxt');
 
-        if (!input) { alert("Please paste an incoming message first."); return; }
+        if(!input) { alert("Please paste a message."); return; }
 
         loader.style.display = 'flex';
-        errorLog.style.display = 'none';
         output.style.opacity = '0.5';
 
         try {
-            const level = document.getElementById('level').value;
-            const tone = document.getElementById('tone').value;
-            const length = document.getElementById('length').value;
-            const format = document.getElementById('format').value;
-
             const res = await fetch("/api/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ input, level, tone, length, format })
+                body: JSON.stringify({
+                    input,
+                    level: document.getElementById('level').value,
+                    tone: document.getElementById('tone').value,
+                    length: document.getElementById('length').value,
+                    format: document.getElementById('format').value
+                })
             });
 
             const data = await res.json();
 
-            // UPDATE GLOBAL STATS
+            // UPDATE GLOBAL STATS IN SIDEBAR
             if (data.limits) {
-                const rem = data.limits.remaining_day;
-                const limitBadge = document.getElementById('limitDay');
-                if(rem !== "Unknown") {
-                    limitBadge.innerText = rem + " / 200";
-                    if(rem < 10) { limitBadge.className = "stat-val badge bg-red"; }
-                    else { limitBadge.className = "stat-val badge bg-green"; }
+                // "remaining" is the actual number left for the day (e.g. 198)
+                const rem = data.limits.remaining;
+                const badge = document.getElementById('limitDay');
+                
+                if (rem !== "Unknown") {
+                    badge.innerText = `${rem} / 200`;
+                    // Change color to RED if less than 10 left
+                    badge.className = rem < 10 ? "badge red" : "badge";
                 }
             }
 
             if (!res.ok) {
-                if (data.isLimit) {
-                    output.innerText = data.error; 
-                    output.style.color = "#d32f2f";
-                } else {
-                    throw new Error(data.error);
-                }
+                output.innerText = data.error;
+                output.style.color = "red";
             } else {
-                sessionReq++;
-                sessionTok += (data.usage?.total_tokens || 0);
-                updateSidebar();
-
-                meta.innerText = `${format.toUpperCase()} • ${tone.toUpperCase()} • ${level.toUpperCase()}`;
+                sessReq++;
+                sessTok += (data.usage?.total_tokens || 0);
+                updateSessStats();
+                
                 output.innerText = data.reply;
                 output.style.color = "inherit";
             }
-            output.style.opacity = '1';
-
-        } catch (err) {
-            errorLog.innerText = `Error: ${err.message}`;
-            errorLog.style.display = 'block';
-            output.innerText = "Check connection.";
+        } catch (e) {
+            output.innerText = "Connection Error.";
         } finally {
             loader.style.display = 'none';
+            output.style.opacity = '1';
         }
     }
 
-    function updateSidebar() {
-        document.getElementById('sessionReq').innerText = sessionReq;
-        document.getElementById('sessionTok').innerText = sessionTok;
+    // --- ADMIN LOGIC ---
+    function showPassInput() {
+        document.getElementById('passModal').style.display = 'block';
+        document.getElementById('adminKey').focus();
     }
 
-    function openDevMode() {
-        const pass = prompt("Enter Developer Key:");
-        if (pass === DEV_PASS) {
-            document.getElementById('secretSidebar').classList.add('active');
+    function closePass() {
+        document.getElementById('passModal').style.display = 'none';
+    }
+
+    function checkAdmin() {
+        if(document.getElementById('adminKey').value === KEY) {
+            closePass();
+            document.getElementById('adminSidebar').classList.add('active');
         } else {
-            alert("Access Denied.");
+            alert("Wrong Key");
         }
     }
-    
-    function toggleSidebar() {
-        document.getElementById('secretSidebar').classList.remove('active');
+
+    function closeSidebar() {
+        document.getElementById('adminSidebar').classList.remove('active');
     }
 
-    function copyReply() {
-        const text = document.getElementById('outputText').innerText;
-        if (!text || text.includes("appear here")) return;
-        navigator.clipboard.writeText(text).then(() => {
-            const toast = document.getElementById('toast');
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
-        });
+    function updateSessStats() {
+        document.getElementById('sessReq').innerText = sessReq;
+        document.getElementById('sessTok').innerText = sessTok;
     }
 
-    window.addEventListener('keydown', (e) => {
-        if (e.key.toLowerCase() === 'r' && document.activeElement.tagName !== 'TEXTAREA') {
-            window.location.reload();
-        }
-    });
+    function copyText() {
+        navigator.clipboard.writeText(document.getElementById('outputTxt').innerText);
+        alert("Copied!");
+    }
 </script>
 
 </body>
