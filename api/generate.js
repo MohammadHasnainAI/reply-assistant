@@ -21,6 +21,26 @@ export default async function handler(req) {
   try {
     const { input, level, tone, length, format } = await req.json();
 
+    // --- SMART PROMPT ENGINEERING ---
+    let systemInstruction = "You are a communication expert. Write in NATURAL, HUMAN English. Use contractions (e.g., 'I'm' instead of 'I am') and conversational flow. Do NOT use AI buzzwords.";
+    let userInstruction = "";
+
+    if (format === "email") {
+        userInstruction = `Write a ${tone} EMAIL reply to this message: "${input}". 
+        English Level: ${level}. Length: ${length}.
+        RULES: 
+        1. Must include a professional "Subject:" line at the top.
+        2. Use a proper salutation (e.g., Hi [Name], Dear [Name]).
+        3. Use a proper sign-off (e.g., Best regards, Thanks).
+        4. Leave placeholders like [Your Name] blank or generic.`;
+    } else {
+        userInstruction = `Write a ${tone} CHAT MESSAGE reply to this: "${input}". 
+        English Level: ${level}. Length: ${length}.
+        RULES: 
+        1. Direct answer only. NO subject line. NO salutation. 
+        2. Sound casual and human.`;
+    }
+
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -32,18 +52,15 @@ export default async function handler(req) {
       body: JSON.stringify({
         "model": "nvidia/nemotron-nano-9b-v2:free",
         "messages": [
-          { 
-            "role": "system", 
-            "content": "You are a communication expert. Output ONLY the raw reply text. Do NOT use markdown bolding. Do NOT wrap in quotes." 
-          },
-          { "role": "user", "content": `Write a ${tone} ${format} in ${level} English. Length: ${length}. Message: "${input}"` }
+          { "role": "system", "content": systemInstruction },
+          { "role": "user", "content": userInstruction }
         ]
       })
     });
 
     const data = await response.json();
     
-    // --- READ REAL GLOBAL LIMITS ---
+    // --- REAL GLOBAL LIMITS ---
     const limitInfo = {
         remaining: response.headers.get("x-ratelimit-remaining") || "200",
         limit: response.headers.get("x-ratelimit-limit") || "200"
@@ -61,6 +78,8 @@ export default async function handler(req) {
     }
 
     let reply = data.choices[0].message.content;
+    
+    // CLEANING: Remove accidental quotes or bold stars
     reply = reply.replace(/^"|"$/g, '').replace(/\*\*/g, '').trim();
 
     return new Response(JSON.stringify({ 
