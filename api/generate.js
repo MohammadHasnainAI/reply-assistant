@@ -26,7 +26,7 @@ export default async function handler(req) {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://your-site.com", // Optional: Change to your site
+        "HTTP-Referer": "https://hasnain-ai.vercel.app", // Optional
         "X-Title": "Professional Reply Assistant"
       },
       body: JSON.stringify({
@@ -34,43 +34,48 @@ export default async function handler(req) {
         "messages": [
           { 
             "role": "system", 
-            "content": "You are a professional communication assistant. IMPORTANT RULES: 1. Output ONLY the raw reply text. 2. Do NOT use markdown bolding (like **Text**). 3. Do NOT wrap the reply in quotes. 4. Do NOT include placeholders like [Your Name] - just end the message naturally." 
+            "content": "You are a communication expert. Output ONLY the raw reply text. No markdown, no quotes, no placeholders like [Name]." 
           },
-          { "role": "user", "content": `Write a ${tone} ${format} in ${level} English. Length: ${length}. The incoming message is: "${input}"` }
+          { "role": "user", "content": `Write a ${tone} ${format} in ${level} English. Length: ${length}. Message: "${input}"` }
         ]
       })
     });
 
     const data = await response.json();
     
-    // --- RESPECTFUL ERROR HANDLING ---
+    // --- 📊 CAPTURE GLOBAL LIMITS FROM HEADERS ---
+    // These headers tell us the ACTUAL usage for your Key across ALL users
+    const limitInfo = {
+        remaining_day: response.headers.get("x-ratelimit-remaining") || "Unknown",
+        limit_day: response.headers.get("x-ratelimit-limit") || "200",
+        reset_time: response.headers.get("x-ratelimit-reset") || "0"
+    };
+
     if (!response.ok) {
         let friendlyMessage = "Unable to generate reply.";
         
-        // Check for specific Limit Errors (429)
+        // 429 = Rate Limit Hit
         if (response.status === 429) {
-            friendlyMessage = "High Traffic Alert: The free AI service is currently busy. Please wait 60 seconds and try again.";
+            friendlyMessage = "⚠️ High Traffic: The Daily or Minute limit has been reached. Please wait a moment.";
         } else if (data.error && data.error.message) {
              friendlyMessage = `System Notice: ${data.error.message}`;
         }
 
         return new Response(JSON.stringify({ 
             error: friendlyMessage,
-            isLimit: response.status === 429 
+            isLimit: response.status === 429,
+            limits: limitInfo // Send limits even on error
         }), { status: response.status, headers });
     }
 
     let reply = data.choices[0].message.content;
-    
     // CLEANING: Remove accidental quotes or bold stars
-    reply = reply.replace(/^"|"$/g, '') // Remove starting/ending quotes
-                 .replace(/\*\*/g, '')    // Remove bold markdown
-                 .trim();
+    reply = reply.replace(/^"|"$/g, '').replace(/\*\*/g, '').trim();
 
-    // Send reply + Usage Stats
     return new Response(JSON.stringify({ 
         reply: reply,
-        usage: data.usage || { total_tokens: 0 } 
+        usage: data.usage || { total_tokens: 0 },
+        limits: limitInfo 
     }), { status: 200, headers });
 
   } catch (error) {
