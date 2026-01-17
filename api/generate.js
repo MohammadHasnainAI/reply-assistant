@@ -34,7 +34,7 @@ export default async function handler(req) {
         "messages": [
           { 
             "role": "system", 
-            "content": "You are a communication expert. Output ONLY the raw reply text. Do NOT use markdown bolding (like **Text**). Do NOT wrap the reply in quotes." 
+            "content": "You are a communication expert. Output ONLY the raw reply text. Do NOT use markdown bolding. Do NOT wrap in quotes." 
           },
           { "role": "user", "content": `Write a ${tone} ${format} in ${level} English. Length: ${length}. Message: "${input}"` }
         ]
@@ -43,10 +43,9 @@ export default async function handler(req) {
 
     const data = await response.json();
     
-    // --- 📊 REAL GLOBAL REMAINING COUNT ---
-    // x-ratelimit-remaining = The exact number of requests LEFT for the day
+    // --- READ REAL GLOBAL LIMITS ---
     const limitInfo = {
-        remaining: response.headers.get("x-ratelimit-remaining") || "200", // Default to 200 if unknown
+        remaining: response.headers.get("x-ratelimit-remaining") || "200",
         limit: response.headers.get("x-ratelimit-limit") || "200"
     };
 
@@ -62,7 +61,6 @@ export default async function handler(req) {
     }
 
     let reply = data.choices[0].message.content;
-    // CLEANING: Remove accidental quotes or bold stars
     reply = reply.replace(/^"|"$/g, '').replace(/\*\*/g, '').trim();
 
     return new Response(JSON.stringify({ 
