@@ -34,7 +34,7 @@ export default async function handler(req) {
         "messages": [
           { 
             "role": "system", 
-            "content": "You are a communication expert. Output ONLY the raw reply text. No markdown, no quotes, no placeholders." 
+            "content": "Output ONLY the raw reply text. No quotes. No markdown." 
           },
           { "role": "user", "content": `Write a ${tone} ${format} in ${level} English. Length: ${length}. Message: "${input}"` }
         ]
@@ -43,24 +43,20 @@ export default async function handler(req) {
 
     const data = await response.json();
     
-    // --- CAPTURE GLOBAL LIMITS ---
+    // --- ROBUST LIMIT COUNTING ---
+    // We check multiple header names because they sometimes change
+    const dayRemaining = response.headers.get("x-ratelimit-remaining") 
+                      || response.headers.get("x-ratelimit-requests-remaining") 
+                      || "Unknown";
+    
     const limitInfo = {
-        remaining_day: response.headers.get("x-ratelimit-remaining") || "Unknown",
-        limit_day: response.headers.get("x-ratelimit-limit") || "200",
-        reset_time: response.headers.get("x-ratelimit-reset") || "0"
+        remaining_day: dayRemaining,
+        limit_day: response.headers.get("x-ratelimit-limit") || "200"
     };
 
     if (!response.ok) {
-        let friendlyMessage = "Unable to generate reply.";
-        
-        if (response.status === 429) {
-            friendlyMessage = "⚠️ Traffic Limit Reached. Please wait 60 seconds.";
-        } else if (data.error && data.error.message) {
-             friendlyMessage = `System Notice: ${data.error.message}`;
-        }
-
         return new Response(JSON.stringify({ 
-            error: friendlyMessage,
+            error: data.error?.message || "Error",
             isLimit: response.status === 429,
             limits: limitInfo
         }), { status: response.status, headers });
@@ -76,6 +72,6 @@ export default async function handler(req) {
     }), { status: 200, headers });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Connection Error: " + error.message }), { status: 500, headers });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
   }
 }
