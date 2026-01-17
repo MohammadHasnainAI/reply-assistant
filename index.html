@@ -6,7 +6,7 @@
     <title>Humanized Reply Assistant | Mohammad Hasnain</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 1. ORIGINAL MINIMALIST DESIGN --- */
+        /* --- 1. MINIMALIST DESIGN (Black & White) --- */
         :root {
             --bg-color: #fcfcfc;
             --text-main: #1a1a1a;
@@ -18,40 +18,17 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding: 40px 20px; overflow-x: hidden; }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            line-height: 1.6;
-            padding: 40px 20px;
-            overflow-x: hidden; 
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-        }
-
-        @media (max-width: 768px) {
-            .container { grid-template-columns: 1fr; }
-        }
+        .container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
 
         header {
-            grid-column: 1 / -1;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+            grid-column: 1 / -1; margin-bottom: 20px; border-bottom: 2px solid var(--accent-color); padding-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: flex-end;
         }
 
         .header-left { display: flex; align-items: flex-end; gap: 10px; }
-
         .branding h1 { font-weight: 600; font-size: 1.5rem; letter-spacing: -0.5px; margin: 0; line-height: 1; }
         .developer-tag { font-size: 0.7rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
         .engine-tag { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; text-align: right; }
@@ -60,112 +37,55 @@
         label { display: block; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
 
         textarea {
-            width: 100%;
-            height: 180px;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            font-family: inherit;
-            font-size: 1rem;
-            resize: none;
-            outline: none;
-            transition: var(--transition);
+            width: 100%; height: 180px; padding: 15px; border: 1px solid var(--border-color);
+            font-family: inherit; font-size: 1rem; resize: none; outline: none; transition: var(--transition);
         }
-
         textarea:focus { border-color: var(--accent-color); }
         
         .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-
         select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            background: white;
-            font-family: inherit;
-            outline: none;
-            cursor: pointer;
+            width: 100%; padding: 10px; border: 1px solid var(--border-color); background: white;
+            font-family: inherit; outline: none; cursor: pointer;
         }
 
         .button-stack { display: flex; gap: 10px; margin-top: 20px; }
-
         button {
-            padding: 12px 24px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: var(--transition);
+            padding: 12px 24px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: var(--transition);
         }
-
         button:disabled { background: #ccc; cursor: not-allowed; }
+
         .btn-primary { background: var(--accent-color); color: white; flex: 2; }
         .btn-primary:hover { opacity: 0.8; }
         .btn-secondary { background: #eee; color: var(--text-main); flex: 1; }
         .btn-secondary:hover { background: #e0e0e0; }
 
         .output-area {
-            background: #fff;
-            border: 1px solid var(--border-color);
-            padding: 30px;
-            position: relative;
-            min-height: 300px;
-            white-space: pre-wrap;
-            display: flex;
-            flex-direction: column;
+            background: #fff; border: 1px solid var(--border-color); padding: 30px;
+            position: relative; min-height: 300px; white-space: pre-wrap; display: flex; flex-direction: column;
         }
-
         .output-header {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 5px;
+            font-size: 0.75rem; color: var(--text-muted); margin-bottom: 20px; text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 5px;
         }
-
         #outputText { flex-grow: 1; font-size: 1.05rem; }
 
         .loader {
-            position: absolute;
-            inset: 0;
-            background: rgba(255,255,255,0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            font-weight: 600;
-            font-size: 0.7rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            position: absolute; inset: 0; background: rgba(255,255,255,0.9); display: none;
+            align-items: center; justify-content: center; z-index: 10; font-weight: 600; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
         }
 
-        .copy-toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #000;
-            color: #fff;
-            padding: 12px 24px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1000;
-        }
-        .copy-toast.show { transform: translateX(-50%) translateY(0); }
-
-        .hint {
-            grid-column: 1 / -1;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 40px;
-            text-align: center;
-        }
-
+        .hint { grid-column: 1 / -1; font-size: 0.75rem; color: var(--text-muted); margin-top: 40px; text-align: center; }
         kbd { background: #eee; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
         #errorLog { color: #d32f2f; font-size: 0.75rem; margin-top: 10px; display: none; word-break: break-all; }
 
-        /* --- 2. MENU & SIDEBAR ADDITIONS --- */
+        .copy-toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #000; color: #fff; padding: 12px 24px; font-size: 0.8rem; font-weight: 600;
+            text-transform: uppercase; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
+        }
+        .copy-toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* --- 2. MENU & ADMIN SIDEBAR --- */
         .menu-wrapper { position: relative; }
         .menu-btn { 
             background: none; border: none; font-size: 1.6rem; cursor: pointer; padding: 0 10px; color: #000; line-height: 1;
@@ -179,11 +99,10 @@
             display: block; width: 100%; padding: 12px 15px; text-align: left; background: none; border: none;
             font-size: 0.85rem; font-weight: 600; cursor: pointer; border-bottom: 1px solid #eee;
         }
-        .menu-dropdown button:last-child { border-bottom: none; }
         .menu-dropdown button:hover { background: #f5f5f5; }
         .menu-wrapper:hover .menu-dropdown { display: block; }
 
-        /* LEFT SIDEBAR (Admin Style) */
+        /* Left Sidebar (Admin) */
         #adminSidebar {
             position: fixed; top: 0; left: -360px; width: 320px; height: 100vh;
             background: #fff; color: #333; z-index: 2000;
@@ -194,11 +113,13 @@
         .sidebar-header { padding: 25px; background: #1e293b; color: #fff; }
         .sidebar-header h3 { font-size: 1rem; font-weight: 600; margin: 0; }
         .sidebar-body { padding: 25px; overflow-y: auto; }
+        
+        /* Stats Styling */
         .stat-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
         .badge { background: #dcfce7; color: #166534; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
         .badge.red { background: #fee2e2; color: #991b1b; }
 
-        /* PASSWORD MODAL */
+        /* Password Modal */
         #passModal {
             position: fixed; top: 70px; left: 20px; width: 240px; background: #fff; border: 1px solid #000; padding: 15px;
             box-shadow: 4px 4px 0 rgba(0,0,0,0.1); z-index: 3000; display: none;
@@ -221,11 +142,11 @@
 <div id="adminSidebar">
     <div class="sidebar-header">
         <h3>Admin Dashboard</h3>
-        <span style="font-size: 0.7rem; opacity: 0.7;">Global Monitor v3.1</span>
+        <span style="font-size: 0.7rem; opacity: 0.7;">Global Monitor v3.3</span>
     </div>
     <div class="sidebar-body">
         <div style="margin-bottom: 30px;">
-            <label>Real-Time Limits (All Users)</label>
+            <label>Real-Time Limits (Global)</label>
             <div class="stat-row">
                 <span>Remaining Today</span>
                 <span class="badge" id="limitDay">Connect...</span>
@@ -361,7 +282,7 @@
 
             const data = await res.json();
 
-            // UPDATE GLOBAL LIMITS
+            // UPDATE GLOBAL LIMITS DISPLAY
             if (data.limits) {
                 const rem = data.limits.remaining;
                 const badge = document.getElementById('limitDay');
@@ -412,6 +333,17 @@
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 2000);
     }
+
+    // --- R KEY REFRESH LOGIC ---
+    window.addEventListener('keydown', (e) => {
+        if (e.key.toLowerCase() === 'r') {
+            const activeTag = document.activeElement.tagName.toUpperCase();
+            // Don't refresh if user is typing in textarea or password input
+            if (activeTag !== 'TEXTAREA' && activeTag !== 'INPUT') {
+                window.location.reload();
+            }
+        }
+    });
 </script>
 
 </body>
