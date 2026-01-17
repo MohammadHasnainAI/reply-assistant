@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Humanized Reply Assistant | Mohammad Hasnain</title>
+    <title>AI Reply Assistant | Mohammad Hasnain</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -11,273 +11,128 @@
             --text-main: #0f172a;
             --text-muted: #64748b;
             --border-color: #e2e8f0;
-            --accent-color: #2563eb; /* Modern DeepSeek Blue */
+            --accent-color: #2563eb; 
+            --error-red: #dc2626;
             --radius: 8px;
             --transition: 0.3s ease;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 40px 20px; }
+        .container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 850px) { .container { grid-template-columns: 1fr; } }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            line-height: 1.6;
-            padding: 40px 20px;
-        }
+        header { grid-column: 1 / -1; margin-bottom: 30px; border-bottom: 2px solid var(--accent-color); padding-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .engine-tag { font-size: 0.7rem; font-weight: 700; color: var(--accent-color); text-transform: uppercase; }
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        @media (max-width: 850px) {
-            .container { grid-template-columns: 1fr; }
-        }
-
-        header {
-            grid-column: 1 / -1;
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .branding h1 { font-weight: 600; font-size: 1.8rem; letter-spacing: -0.5px; }
-        .developer-tag { font-size: 0.8rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
-        .engine-tag { font-size: 0.7rem; font-weight: 700; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1.5px; text-align: right; }
-
-        .panel {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        }
-
-        label { display: block; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 10px; color: var(--text-muted); }
-
-        textarea {
-            width: 100%;
-            height: 200px;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            font-family: inherit;
-            font-size: 1rem;
-            resize: none;
-            outline: none;
-            transition: var(--transition);
-        }
-
-        textarea:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .panel { background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius); padding: 25px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        textarea { width: 100%; height: 200px; padding: 15px; border: 1px solid var(--border-color); border-radius: var(--radius); font-family: inherit; resize: none; outline: none; transition: var(--transition); }
+        textarea:focus { border-color: var(--accent-color); }
 
         .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            background: white;
-            font-family: inherit;
-            outline: none;
-            cursor: pointer;
-        }
+        select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius); }
 
         .button-stack { display: flex; gap: 12px; margin-top: 25px; }
-
-        button {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: var(--transition);
-        }
-
+        button { flex: 1; padding: 14px; border: none; border-radius: var(--radius); cursor: pointer; font-weight: 600; transition: var(--transition); }
         .btn-primary { background: var(--accent-color); color: white; }
-        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
         .btn-secondary { background: #f1f5f9; color: var(--text-main); }
-        .btn-secondary:hover { background: #e2e8f0; }
 
-        .output-area {
-            background: #fdfdfd;
-            border: 1px dashed var(--border-color);
-            border-radius: var(--radius);
-            padding: 25px;
-            position: relative;
-            min-height: 350px;
-            white-space: pre-wrap;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #outputText { flex-grow: 1; font-size: 1.05rem; color: #334155; }
-
-        .loader {
-            position: absolute;
-            inset: 0;
-            background: rgba(255,255,255,0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            font-weight: 600;
-            color: var(--accent-color);
-        }
-
-        #errorLog { color: #dc2626; font-size: 0.8rem; margin-top: 15px; display: none; padding: 10px; background: #fee2e2; border-radius: 4px; }
+        .output-area { background: #fdfdfd; border: 1px dashed var(--border-color); border-radius: var(--radius); padding: 25px; min-height: 350px; position: relative; white-space: pre-wrap; }
+        .loader { position: absolute; inset: 0; background: rgba(255,255,255,0.9); display: none; align-items: center; justify-content: center; color: var(--accent-color); font-weight: 600; }
         
-        .copy-toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #0f172a;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .copy-toast.show { transform: translateX(-50%) translateY(0); }
+        /* 🚨 ERROR BOX STYLING */
+        #errorLog { display: none; margin-top: 15px; padding: 15px; background: #fee2e2; border-left: 4px solid var(--error-red); color: var(--error-red); font-size: 0.85rem; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <div class="branding">
+        <div>
             <h1>REPLY ASSISTANT.AI</h1>
-            <div class="developer-tag">Developed by Mohammad Hasnain</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Developed by Mohammad Hasnain</div>
         </div>
-        <div class="engine-tag">Powered by DeepSeek-V3.2</div>
+        <div class="engine-tag">NVIDIA Nemotron Nano</div>
     </header>
 
     <div class="panel">
-        <label for="incomingMessage">Incoming Message</label>
-        <textarea id="incomingMessage" placeholder="Paste the text here..."></textarea>
+        <label style="font-size: 0.7rem; font-weight: bold; color: var(--text-muted);">INCOMING MESSAGE</label>
+        <textarea id="incomingMessage" placeholder="Paste message here..."></textarea>
 
         <div class="selectors">
-            <div>
-                <label>English Level</label>
-                <select id="level">
-                    <option value="easy">Easy</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="hard">Hard</option>
-                </select>
-            </div>
-            <div>
-                <label>Tone</label>
-                <select id="tone">
-                    <option value="respectful">Respectful</option>
-                    <option value="friendly">Friendly</option>
-                    <option value="polite">Polite</option>
-                    <option value="professional">Professional</option>
-                </select>
-            </div>
-            <div>
-                <label>Length</label>
-                <select id="length">
-                    <option value="short">Short</option>
-                    <option value="normal" selected>Normal</option>
-                    <option value="long">Long</option>
-                </select>
-            </div>
-            <div>
-                <label>Format</label>
-                <select id="format">
-                    <option value="message">Message (Chat)</option>
-                    <option value="email">Email</option>
-                </select>
-            </div>
+            <select id="level"><option value="easy">Easy English</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select>
+            <select id="tone"><option value="polite">Polite</option><option value="friendly">Friendly</option><option value="professional" selected>Professional</option></select>
+            <select id="length"><option value="short">Short</option><option value="normal" selected>Normal</option><option value="long">Long</option></select>
+            <select id="format"><option value="message">Chat Message</option><option value="email">Email</option></select>
         </div>
 
         <div class="button-stack">
-            <button class="btn-primary" onclick="generateReply('normal')">Generate Reply</button>
-            <button class="btn-secondary" onclick="generateReply('regenerate')">Regenerate</button>
+            <button class="btn-primary" id="mainBtn" onclick="generateReply()">Generate Reply</button>
+            <button class="btn-secondary" onclick="window.location.reload()">Reset</button>
         </div>
         <div id="errorLog"></div>
     </div>
 
     <div class="panel">
-        <label>Suggested Reply</label>
+        <label style="font-size: 0.7rem; font-weight: bold; color: var(--text-muted);">SUGGESTED REPLY</label>
         <div class="output-area">
-            <div class="loader" id="loader">DeepSeek is thinking...</div>
+            <div class="loader" id="loader">AI IS ANALYZING...</div>
             <div id="outputText">Your humanized reply will appear here.</div>
         </div>
-        <div class="button-stack">
-            <button class="btn-secondary" onclick="copyReply()" style="width: 100%;">Copy to Clipboard</button>
-        </div>
+        <button class="btn-secondary" style="width: 100%; margin-top: 20px;" onclick="copyReply()">Copy Result</button>
     </div>
 </div>
 
-<div class="copy-toast" id="toast">Copied to clipboard!</div>
-
 <script>
-    async function generateReply(type) {
+    async function generateReply() {
         const input = document.getElementById('incomingMessage').value;
         const loader = document.getElementById('loader');
         const output = document.getElementById('outputText');
         const errorLog = document.getElementById('errorLog');
+        const btn = document.getElementById('mainBtn');
 
-        if (!input) {
-            alert("Please paste a message first.");
-            return;
-        }
+        if (!input) { alert("Please paste a message."); return; }
 
         loader.style.display = 'flex';
         errorLog.style.display = 'none';
+        btn.disabled = true;
 
         try {
-            const level = document.getElementById('level').value;
-            const tone = document.getElementById('tone').value;
-            const length = document.getElementById('length').value;
-            const format = document.getElementById('format').value;
-
             const res = await fetch("/api/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ input, level, tone, length, format, type })
+                body: JSON.stringify({
+                    input,
+                    level: document.getElementById('level').value,
+                    tone: document.getElementById('tone').value,
+                    length: document.getElementById('length').value,
+                    format: document.getElementById('format').value
+                })
             });
 
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Connection error");
+
+            if (!res.ok) {
+                // If it's a 429 error, it shows "Daily limit reached" message
+                throw new Error(data.error);
+            }
 
             output.innerText = data.reply;
-
         } catch (err) {
-            errorLog.innerText = `Error: ${err.message}`;
+            errorLog.innerText = "⚠️ API NOTICE: " + err.message;
             errorLog.style.display = 'block';
-            output.innerText = "Check your DeepSeek API Key and balance.";
+            output.innerText = "Generation paused. See error details on the left.";
         } finally {
             loader.style.display = 'none';
+            btn.disabled = false;
         }
     }
 
     function copyReply() {
         const text = document.getElementById('outputText').innerText;
-        if (!text || text.includes("appear here")) return;
-        navigator.clipboard.writeText(text).then(() => {
-            const toast = document.getElementById('toast');
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
-        });
+        navigator.clipboard.writeText(text);
+        alert("Copied!");
     }
-
-    window.addEventListener('keydown', (e) => {
-        if (e.key.toLowerCase() === 'r' && document.activeElement.tagName !== 'TEXTAREA') {
-            window.location.reload();
-        }
-    });
 </script>
 
 </body>
