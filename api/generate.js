@@ -26,15 +26,15 @@ export default async function handler(req) {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://hasnain-ai.vercel.app", // Optional
-        "X-Title": "Professional Reply Assistant"
+        "HTTP-Referer": "https://hasnain-ai.vercel.app",
+        "X-Title": "Reply Assistant"
       },
       body: JSON.stringify({
         "model": "nvidia/nemotron-nano-9b-v2:free",
         "messages": [
           { 
             "role": "system", 
-            "content": "You are a communication expert. Output ONLY the raw reply text. No markdown, no quotes, no placeholders like [Name]." 
+            "content": "You are a communication expert. Output ONLY the raw reply text. No markdown, no quotes, no placeholders." 
           },
           { "role": "user", "content": `Write a ${tone} ${format} in ${level} English. Length: ${length}. Message: "${input}"` }
         ]
@@ -43,8 +43,7 @@ export default async function handler(req) {
 
     const data = await response.json();
     
-    // --- 📊 CAPTURE GLOBAL LIMITS FROM HEADERS ---
-    // These headers tell us the ACTUAL usage for your Key across ALL users
+    // --- CAPTURE GLOBAL LIMITS ---
     const limitInfo = {
         remaining_day: response.headers.get("x-ratelimit-remaining") || "Unknown",
         limit_day: response.headers.get("x-ratelimit-limit") || "200",
@@ -54,9 +53,8 @@ export default async function handler(req) {
     if (!response.ok) {
         let friendlyMessage = "Unable to generate reply.";
         
-        // 429 = Rate Limit Hit
         if (response.status === 429) {
-            friendlyMessage = "⚠️ High Traffic: The Daily or Minute limit has been reached. Please wait a moment.";
+            friendlyMessage = "⚠️ Traffic Limit Reached. Please wait 60 seconds.";
         } else if (data.error && data.error.message) {
              friendlyMessage = `System Notice: ${data.error.message}`;
         }
@@ -64,12 +62,11 @@ export default async function handler(req) {
         return new Response(JSON.stringify({ 
             error: friendlyMessage,
             isLimit: response.status === 429,
-            limits: limitInfo // Send limits even on error
+            limits: limitInfo
         }), { status: response.status, headers });
     }
 
     let reply = data.choices[0].message.content;
-    // CLEANING: Remove accidental quotes or bold stars
     reply = reply.replace(/^"|"$/g, '').replace(/\*\*/g, '').trim();
 
     return new Response(JSON.stringify({ 
