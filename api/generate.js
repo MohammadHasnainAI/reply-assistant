@@ -12,39 +12,49 @@ export default async function handler(req) {
 
   if (req.method === 'OPTIONS') return new Response(null, { status: 200, headers });
 
-  // 🚨 NEW CHECK: This prevents the "****ined" error
-  const apiKey = process.env.DEEPSEEK_API_KEY;
+  // Use your OpenRouter Key from Vercel Environment Variables
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  
   if (!apiKey || apiKey === "undefined") {
-      return new Response(JSON.stringify({ error: "System Configuration Error: API Key is missing in Vercel settings." }), { status: 500, headers });
+      return new Response(JSON.stringify({ 
+        error: "Configuration Error: API Key is missing in Vercel settings." 
+      }), { status: 500, headers });
   }
 
   try {
     const { input, level, tone, length, format } = await req.json();
 
-    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
+        "Authorization": `Bearer ${apiKey}`,
+        "X-Title": "Multi-User Reply Assistant"
       },
       body: JSON.stringify({
-        "model": "deepseek-chat",
+        "model": "nvidia/nemotron-nano-9b-v2:free",
         "messages": [
-          { "role": "system", "content": "You are a professional assistant." },
-          { "role": "user", "content": `Write a ${tone} ${format} in ${level} English for: ${input}` }
+          { "role": "system", "content": "You are a professional humanized reply assistant. Output only the message text." },
+          { "role": "user", "content": `Write a ${tone} ${format} in ${level} English (${length} length) for this: ${input}` }
         ]
       })
     });
 
     const data = await response.json();
     
+    // 🚨 SMART ERROR HANDLING
     if (!response.ok) {
-        return new Response(JSON.stringify({ error: data.error?.message || "DeepSeek rejected the request" }), { status: response.status, headers });
+        // This picks up "Rate limit exceeded" or "Daily quota reached" directly from OpenRouter
+        const errorMessage = data.error?.message || "The AI service is currently busy.";
+        return new Response(JSON.stringify({ 
+            error: errorMessage,
+            status: response.status 
+        }), { status: response.status, headers });
     }
 
     return new Response(JSON.stringify({ reply: data.choices[0].message.content }), { status: 200, headers });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
+    return new Response(JSON.stringify({ error: "Server error: " + error.message }), { status: 500, headers });
   }
 }
