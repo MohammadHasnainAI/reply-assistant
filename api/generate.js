@@ -34,7 +34,7 @@ export default async function handler(req) {
         "messages": [
           { 
             "role": "system", 
-            "content": "Output ONLY the raw reply text. No quotes. No markdown." 
+            "content": "You are a communication expert. Output ONLY the raw reply text. Do NOT use markdown bolding (like **Text**). Do NOT wrap the reply in quotes." 
           },
           { "role": "user", "content": `Write a ${tone} ${format} in ${level} English. Length: ${length}. Message: "${input}"` }
         ]
@@ -43,35 +43,35 @@ export default async function handler(req) {
 
     const data = await response.json();
     
-    // --- ROBUST LIMIT COUNTING ---
-    // We check multiple header names because they sometimes change
-    const dayRemaining = response.headers.get("x-ratelimit-remaining") 
-                      || response.headers.get("x-ratelimit-requests-remaining") 
-                      || "Unknown";
-    
+    // --- 📊 REAL GLOBAL REMAINING COUNT ---
+    // x-ratelimit-remaining = The exact number of requests LEFT for the day
     const limitInfo = {
-        remaining_day: dayRemaining,
-        limit_day: response.headers.get("x-ratelimit-limit") || "200"
+        remaining: response.headers.get("x-ratelimit-remaining") || "200", // Default to 200 if unknown
+        limit: response.headers.get("x-ratelimit-limit") || "200"
     };
 
     if (!response.ok) {
+        let errorMsg = data.error?.message || "Limit Reached";
+        if (response.status === 429) errorMsg = "⚠️ Daily Limit Reached. Try again tomorrow.";
+        
         return new Response(JSON.stringify({ 
-            error: data.error?.message || "Error",
+            error: errorMsg,
             isLimit: response.status === 429,
             limits: limitInfo
         }), { status: response.status, headers });
     }
 
     let reply = data.choices[0].message.content;
+    // CLEANING: Remove accidental quotes or bold stars
     reply = reply.replace(/^"|"$/g, '').replace(/\*\*/g, '').trim();
 
     return new Response(JSON.stringify({ 
         reply: reply,
-        usage: data.usage || { total_tokens: 0 },
+        usage: data.usage,
         limits: limitInfo 
     }), { status: 200, headers });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers });
+    return new Response(JSON.stringify({ error: "Connection Failed" }), { status: 500, headers });
   }
 }
