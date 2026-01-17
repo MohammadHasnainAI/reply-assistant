@@ -3,6 +3,7 @@ export const config = {
 };
 
 export default async function handler(req) {
+  // CORS Headers to allow your website to talk to this backend
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -15,30 +16,23 @@ export default async function handler(req) {
   const apiKey = process.env.OPENROUTER_API_KEY;
 
   if (!apiKey) {
-      return new Response(JSON.stringify({ error: "Configuration Error: API Key missing." }), { status: 500, headers });
+      return new Response(JSON.stringify({ error: "System Error: API Key is missing in Vercel." }), { status: 500, headers });
   }
 
   try {
     const { input, level, tone, length, format } = await req.json();
 
-    // --- SMART PROMPT ENGINEERING ---
-    let systemInstruction = "You are a communication expert. Write in NATURAL, HUMAN English. Use contractions (e.g., 'I'm' instead of 'I am') and conversational flow. Do NOT use AI buzzwords.";
+    // --- SMART PROMPT ---
+    // Forces the model to speak naturally and format correctly based on selection
+    let systemInstruction = "You are a communication expert. Write in NATURAL, HUMAN English. Use contractions (e.g., 'I'm'). Output ONLY the raw reply text. Do NOT use markdown bolding (**). Do NOT wrap in quotes.";
+    
     let userInstruction = "";
-
     if (format === "email") {
-        userInstruction = `Write a ${tone} EMAIL reply to this message: "${input}". 
-        English Level: ${level}. Length: ${length}.
-        RULES: 
-        1. Must include a professional "Subject:" line at the top.
-        2. Use a proper salutation (e.g., Hi [Name], Dear [Name]).
-        3. Use a proper sign-off (e.g., Best regards, Thanks).
-        4. Leave placeholders like [Your Name] blank or generic.`;
+        userInstruction = `Write a ${tone} EMAIL reply. Level: ${level}. Length: ${length}. Incoming: "${input}". 
+        RULES: Include a Subject line. Use proper salutation/sign-off.`;
     } else {
-        userInstruction = `Write a ${tone} CHAT MESSAGE reply to this: "${input}". 
-        English Level: ${level}. Length: ${length}.
-        RULES: 
-        1. Direct answer only. NO subject line. NO salutation. 
-        2. Sound casual and human.`;
+        userInstruction = `Write a ${tone} CHAT reply. Level: ${level}. Length: ${length}. Incoming: "${input}". 
+        RULES: Direct answer. No subject. Sound casual.`;
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -46,7 +40,7 @@ export default async function handler(req) {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://hasnain-ai.vercel.app",
+        "HTTP-Referer": "https://reply-assistant.vercel.app",
         "X-Title": "Reply Assistant"
       },
       body: JSON.stringify({
@@ -58,7 +52,16 @@ export default async function handler(req) {
       })
     });
 
-    const data = await response.json();
+    // --- BUG FIX: SAFE JSON PARSING ---
+    // We read text first to prevent crashing if API returns HTML error pages
+    const rawText = await response.text();
+    let data;
+    try {
+        data = JSON.parse(rawText);
+    } catch (e) {
+        // If parsing fails, it's likely a server error from OpenRouter
+        return new Response(JSON.stringify({ error: "External API Error: The AI service is temporarily down." }), { status: 502, headers });
+    }
     
     // --- REAL GLOBAL LIMITS ---
     const limitInfo = {
@@ -78,7 +81,6 @@ export default async function handler(req) {
     }
 
     let reply = data.choices[0].message.content;
-    
     // CLEANING: Remove accidental quotes or bold stars
     reply = reply.replace(/^"|"$/g, '').replace(/\*\*/g, '').trim();
 
@@ -89,6 +91,6 @@ export default async function handler(req) {
     }), { status: 200, headers });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Connection Failed" }), { status: 500, headers });
+    return new Response(JSON.stringify({ error: "Connection Failed: " + error.message }), { status: 500, headers });
   }
 }
